@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/launcher_home">
+
+
+    <fragment
+        android:id="@+id/launcher_home"
+        android:name="josiak.android.example.cryptocurrency.charts.ui.CryptocurrencyMainList"
+        android:label="fragment_cryptocurrency_main_list"
+        tools:layout="@layout/fragment_cryptocurrency_main_list" />
+</navigation>
