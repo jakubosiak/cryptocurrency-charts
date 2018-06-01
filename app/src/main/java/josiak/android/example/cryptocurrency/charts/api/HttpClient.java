@@ -11,13 +11,15 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 public class HttpClient {
 
     private static OkHttpClient singletonInstance;
+    private static final Object LOCK = new Object();
 
-    public static OkHttpClient create() {
+    public static OkHttpClient getInstance() {
         if (singletonInstance == null)
-            singletonInstance = new OkHttpClient.Builder()
-                    .addInterceptor(new HttpLoggingInterceptor().setLevel(Level.BASIC))
-                    .build();
-
+            synchronized (LOCK) {
+                singletonInstance = new OkHttpClient.Builder()
+                        .addInterceptor(new HttpLoggingInterceptor().setLevel(Level.BASIC))
+                        .build();
+            }
         return singletonInstance;
     }
 }

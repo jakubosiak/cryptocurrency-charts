@@ -7,5 +7,5 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed
  * Created by Jakub on 2018-05-25.
  */
 data class CryptoDetailedResponse(
-        @SerializedName("RAW") val list: List<CryptoDetailed> = emptyList()
+        @SerializedName("RAW") val list: HashMap<String, HashMap<String, CryptoDetailed>>
 )

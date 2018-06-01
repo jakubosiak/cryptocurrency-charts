@@ -21,7 +21,7 @@ public class CryptoCompareApi {
     }
 
     public interface CryptoCompare {
-        @GET("data/pricemultifull/")
+        @GET("data/pricemultifull")
         Call<CryptoDetailedResponse> requestCoins(
                 @Query("fsyms") String fromSymbol,
                 @Query("tsyms") String toSymbol

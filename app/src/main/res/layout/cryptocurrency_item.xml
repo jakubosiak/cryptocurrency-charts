@@ -6,6 +6,7 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:src="@mipmap/ic_launcher"
         android:id="@+id/img_crypto_icon"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -69,6 +70,7 @@
         tools:text="Change%" />
 
     <ImageView
+        android:src="@drawable/ic_star_border_black_24dp"
         android:id="@+id/img_fav"
         android:layout_width="64dp"
         android:layout_height="64dp"

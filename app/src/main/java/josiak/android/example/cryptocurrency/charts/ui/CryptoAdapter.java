@@ -1,5 +1,6 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
+import android.arch.paging.PagedListAdapter;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil;
@@ -11,7 +12,7 @@ import josiak.android.example.cryptocurrency.charts.data.Crypto;
  * Created by Jakub on 2018-05-23.
  */
 
-public class CryptoAdapter extends ListAdapter<Crypto, CryptoViewHolder> {
+public class CryptoAdapter extends PagedListAdapter<Crypto, CryptoViewHolder> {
 
     protected CryptoAdapter() {
         super(diffCallback);
@@ -25,18 +26,22 @@ public class CryptoAdapter extends ListAdapter<Crypto, CryptoViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull CryptoViewHolder holder, int position) {
-
+        Crypto item = getItem(position);
+        if(item != null) {
+            holder.bind(item);
+        }
     }
 
     public static DiffUtil.ItemCallback<Crypto> diffCallback = new DiffUtil.ItemCallback<Crypto>() {
         @Override
         public boolean areItemsTheSame(Crypto oldItem, Crypto newItem) {
-            return false;
+
+            return oldItem.getId() == newItem.getId();
         }
 
         @Override
         public boolean areContentsTheSame(Crypto oldItem, Crypto newItem) {
-            return false;
+            return oldItem == newItem;
         }
     };
 }
