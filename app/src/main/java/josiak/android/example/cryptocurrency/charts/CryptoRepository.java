@@ -43,7 +43,7 @@ public class CryptoRepository {
         Log.v("RefreshingInRepository", "true");
         pagingBoundaryCallback =
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
-        //MutableLiveData<Boolean> fetchingData = pagingBoundaryCallback._fetchingData;
+        LiveData<Boolean> fetchingData = pagingBoundaryCallback.fetchingData;
 
         DataSource.Factory<Integer, Crypto> dataSourceFactory = cache.queryCryptosByRank();
 
@@ -57,10 +57,10 @@ public class CryptoRepository {
                         .setBoundaryCallback(pagingBoundaryCallback)
                         .build();
 
-        return new CryptoResultFromDatabase(pagedListData);
+        return new CryptoResultFromDatabase(pagedListData, fetchingData);
     }
 
-    public LiveData<Boolean> refresh() {
-        return pagingBoundaryCallback.refresh();
+    public void refresh() {
+        pagingBoundaryCallback.refresh();
     }
 }

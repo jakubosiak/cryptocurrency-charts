@@ -33,6 +33,7 @@ public class CryptocurrencyMainList extends Fragment {
         viewModel = ViewModelProviders.of(this,
                 InjectorUtils.provideMainListViewModelFactory(getContext()))
                 .get(MainListViewModel.class);
+        viewModel.init("triggerInitialRequest");
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -41,10 +42,10 @@ public class CryptocurrencyMainList extends Fragment {
         adapter = new CryptoAdapter();
         recyclerView.setAdapter(adapter);
 
-        viewModel.getCryptoPagedList().observe(this, cryptos ->
+        viewModel.cryptoPagedList.observe(this, cryptos ->
                     adapter.submitList(cryptos)
         );
-        viewModel.isFetchingData().observe(this, fetchingData ->
+        viewModel.fetchingData.observe(this, fetchingData ->
                 swipeRefreshLayout.setRefreshing(fetchingData)
         );
         swipeRefreshLayout.setOnRefreshListener(() ->

@@ -1,5 +1,6 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
@@ -23,28 +24,21 @@ public class MainListViewModel extends ViewModel {
         this.repository = repository;
     }
 
-    private LiveData<PagedList<Crypto>> cryptoPagedList;
-    private LiveData<Boolean> fetchingData;
-    //private CryptoResultFromDatabase cryptoResultFromDatabaseLiveData;
+    private MutableLiveData<String> trigger = new MutableLiveData<>();
+    private LiveData<CryptoResultFromDatabase> cryptoResultFromDatabaseLiveData =
+            Transformations.map(trigger, func ->
+                    repository.requestCoins()
+            );
 
-    public LiveData<PagedList<Crypto>> getCryptoPagedList() {
-        if (repository != null && cryptoPagedList == null) {
-            cryptoPagedList = repository.requestCoins().getPagedListData();
-        }
-        return cryptoPagedList;
+    public LiveData<PagedList<Crypto>> cryptoPagedList =
+            Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getPagedListData);
+
+    public LiveData<Boolean> fetchingData =
+            Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getFetchingData);
+
+    public void init(String init) {
+        trigger.postValue(init);
     }
-
-    public LiveData<Boolean> isFetchingData() {
-        if (repository != null && fetchingData == null) {
-            return fetchingData = repository.refresh();
-        }
-        return fetchingData;
-    }
-
-/*    public void getResultsFromDataBase() {
-        if (repository != null)
-            cryptoResultFromDatabaseLiveData = repository.requestCoins();
-    }*/
 
     public void refreshList() {
         if (repository != null)

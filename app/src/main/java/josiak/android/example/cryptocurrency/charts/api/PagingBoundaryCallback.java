@@ -55,7 +55,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private List<Crypto> cryptoList = new ArrayList<>();
 
     private MutableLiveData<Boolean> _fetchingData = new MutableLiveData<>();
-    private LiveData<Boolean> fetchingData;
+    public LiveData<Boolean> fetchingData;
 
     public PagingBoundaryCallback(
             CoinMarketCap coinMarketCapApi,
@@ -67,11 +67,10 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         this.cache = cache;
         this.contextForResources = contextForResources;
         fetchingData = _fetchingData;
-        //_fetchingData.postValue(false);
         Log.v("RefreshingInCallback", "true");
     }
 
-    public LiveData<Boolean> refresh(){
+    public void refresh(){
         Log.v("refresh", "true");
         if(Utilities.isOnline(contextForResources)) {
             Log.v("isOnline",  "true");
@@ -82,7 +81,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             _fetchingData.postValue(false);
         }
         requestAndSaveData();
-        return fetchingData;
     }
 
     @Override

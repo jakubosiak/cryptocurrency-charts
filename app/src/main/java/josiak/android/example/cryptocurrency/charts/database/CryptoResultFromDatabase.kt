@@ -9,5 +9,6 @@ import josiak.android.example.cryptocurrency.charts.data.Crypto
  * Created by Kuba on 2018-05-29.
  */
 data class CryptoResultFromDatabase(
-        val pagedListData: LiveData<PagedList<Crypto>>
+        val pagedListData: LiveData<PagedList<Crypto>>,
+        val fetchingData: LiveData<Boolean>
 )
