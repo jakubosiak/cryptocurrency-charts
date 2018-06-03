@@ -21,9 +21,15 @@ public class CryptoLocalCache {
         this.cryptoDao = cryptoDao;
     }
 
-    public void deleteCoin() {
+    public void deleteCoins() {
         executors.diskIO().execute(() ->
                 cryptoDao.deleteCoins()
+        );
+    }
+
+    public void deleteCoinsBelowRank50() {
+        executors.diskIO().execute(() ->
+                cryptoDao.deleteCoinsBelowRank50()
         );
     }
 

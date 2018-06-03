@@ -1,7 +1,12 @@
 package josiak.android.example.cryptocurrency.charts.api;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PagedList;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -33,6 +38,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private static final int RESULTS_SIZE = 50;
     private static final String TO_SYMBOL = "USD";
     private static final int FAVOURITE_FALSE = 0;
+    private static final Object LOCK = new Object();
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;
@@ -41,11 +47,15 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
 
     private int resultsFromRank = 1;
     private boolean requestingInProgress = false;
+    private boolean initialRequest = true;
 
     private HashMap<String, CryptoDetailed> cryptoDetailedHashMap = new HashMap<>();
     private List<CryptoSimple> cryptoSimpleList = new ArrayList<>();
     private List<CryptoDetailed> cryptoDetailedList = new ArrayList<>();
     private List<Crypto> cryptoList = new ArrayList<>();
+
+    private MutableLiveData<Boolean> _fetchingData = new MutableLiveData<>();
+    private LiveData<Boolean> fetchingData;
 
     public PagingBoundaryCallback(
             CoinMarketCap coinMarketCapApi,
@@ -56,12 +66,40 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         this.cryptoCompareApi = cryptoCompareApi;
         this.cache = cache;
         this.contextForResources = contextForResources;
+        fetchingData = _fetchingData;
+        //_fetchingData.postValue(false);
+        Log.v("RefreshingInCallback", "true");
+    }
+
+    public LiveData<Boolean> refresh(){
+        Log.v("refresh", "true");
+        if(Utilities.isOnline(contextForResources)) {
+            Log.v("isOnline",  "true");
+            _fetchingData.postValue(true);
+            cache.deleteCoinsBelowRank50();
+            resultsFromRank = 1;
+        } else {
+            _fetchingData.postValue(false);
+        }
+        requestAndSaveData();
+        return fetchingData;
     }
 
     @Override
     public void onZeroItemsLoaded() {
         super.onZeroItemsLoaded();
+        Log.v("onZeroItemsLoaded", "true");
+        initialRequest = false;
         requestAndSaveData();
+    }
+
+    @Override
+    public void onItemAtFrontLoaded(@NonNull Crypto itemAtFront) {
+        super.onItemAtFrontLoaded(itemAtFront);
+        Log.v("onItemAtFrontLoaded", "true");
+        if (initialRequest)
+            requestAndSaveData();
+        Log.v("initialRequestOnFront", String.valueOf(initialRequest));
     }
 
     @Override
@@ -71,7 +109,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     }
 
     private void requestAndSaveData() {
-        if (requestingInProgress) return;
+        Log.v("requestAndSaveData", "start");
+        if (requestingInProgress || !Utilities.isOnline(contextForResources)) return;
 
         requestingInProgress = true;
         requestCryptoSimple();
@@ -85,14 +124,16 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                     public void onFailure(Call<CryptoSimpleResponse> call, Throwable t) {
                         Log.d(TAG_COIN_MARKET_CAP_API, "failed to get data");
                         Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + t.getMessage());
+                        _fetchingData.postValue(false);
+                        requestingInProgress = false;
                     }
 
                     @Override
                     public void onResponse(Call<CryptoSimpleResponse> call, Response<CryptoSimpleResponse> response) {
                         Log.d(TAG_COIN_MARKET_CAP_API, "got response: " + response.toString());
                         if (response.isSuccessful()) {
-                            if(cryptoSimpleList.size() > 0)
-                            cryptoSimpleList.clear();
+                            if (cryptoSimpleList.size() > 0)
+                                cryptoSimpleList.clear();
                             HashMap<String, CryptoSimple> hashMap =
                                     Utilities.replaceSymbolsIncompatibility(response.body().getItems(), contextForResources);
 
@@ -107,6 +148,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                             requestCryptoDetailed();
                         } else {
                             Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + response.errorBody().toString());
+                            _fetchingData.postValue(false);
+                            requestingInProgress = false;
                         }
                     }
                 }
@@ -130,9 +173,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             public void onResponse(Call<CryptoDetailedResponse> call, Response<CryptoDetailedResponse> response) {
                 Log.d(TAG_CRYPTO_COMPARE_API, "got response: " + response.toString());
                 if (response.isSuccessful()) {
-                    if(cryptoDetailedList.size() > 0)
+                    if (cryptoDetailedList.size() > 0)
                         cryptoDetailedList.clear();
-                    if(cryptoDetailedHashMap.size() > 0)
+                    if (cryptoDetailedHashMap.size() > 0)
                         cryptoDetailedHashMap.clear();
                     HashMap<String, HashMap<String, CryptoDetailed>> hashMap = response.body().getList();
                     for (Map.Entry<String, HashMap<String, CryptoDetailed>> entry : hashMap.entrySet()) {
@@ -149,6 +192,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                     createCryptoFromResponses(cryptoSimpleList, cryptoDetailedList);
                 } else {
                     Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + response.errorBody().toString());
+                    _fetchingData.postValue(false);
+                    requestingInProgress = false;
                 }
             }
 
@@ -156,6 +201,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             public void onFailure(Call<CryptoDetailedResponse> call, Throwable t) {
                 Log.d(TAG_CRYPTO_COMPARE_API, "failed to get data");
                 Log.d(TAG_CRYPTO_COMPARE_API, "Unknown error " + t.getMessage());
+                _fetchingData.postValue(false);
+                requestingInProgress = false;
             }
         });
     }
@@ -194,6 +241,12 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         if (cryptoList.size() > 0)
             cache.insertCoins(cryptoList);
         Log.v(LOG_TAG, "Inserted " + String.valueOf(cryptoList.size()) + " to database");
+        if (initialRequest && Utilities.isOnline(contextForResources)) {
+            cache.deleteCoinsBelowRank50();
+            initialRequest = false;
+            Log.v(LOG_TAG, "Deleted rows below rank 50");
+        }
+        _fetchingData.postValue(false);
         requestingInProgress = false;
     }
 }

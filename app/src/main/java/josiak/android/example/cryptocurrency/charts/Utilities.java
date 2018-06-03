@@ -2,6 +2,8 @@ package josiak.android.example.cryptocurrency.charts;
 
 import android.arch.persistence.room.util.StringUtil;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -79,5 +81,12 @@ public class Utilities {
             hashMap.put(cryptoNewCustomSymbolList.get(j).getSymbol(), cryptoNewCustomSymbolList.get(j));
         }
         return hashMap;
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

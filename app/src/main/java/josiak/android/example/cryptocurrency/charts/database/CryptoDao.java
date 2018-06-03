@@ -25,4 +25,7 @@ public interface CryptoDao {
 
     @Query("DELETE FROM cryptos")
     void deleteCoins();
+
+    @Query("DELETE FROM cryptos WHERE rank > 50")
+    void deleteCoinsBelowRank50();
 }

@@ -1,6 +1,7 @@
 package josiak.android.example.cryptocurrency.charts.database
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PagedList
 import josiak.android.example.cryptocurrency.charts.data.Crypto
 

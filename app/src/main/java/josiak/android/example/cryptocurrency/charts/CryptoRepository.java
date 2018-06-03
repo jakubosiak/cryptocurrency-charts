@@ -1,10 +1,12 @@
 package josiak.android.example.cryptocurrency.charts;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.content.Context;
+import android.util.Log;
 
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCapApi.CoinMarketCap;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompareApi.CryptoCompare;
@@ -22,6 +24,7 @@ public class CryptoRepository {
     private CryptoCompare cryptoCompareApi;
     private CryptoLocalCache cache;
     private Context contextForResources;
+    private PagingBoundaryCallback pagingBoundaryCallback;
 
     private static final int PAGE_SIZE = 50;
 
@@ -37,9 +40,10 @@ public class CryptoRepository {
     }
 
     public CryptoResultFromDatabase requestCoins() {
-        cache.deleteCoin();
-            PagingBoundaryCallback pagingBoundaryCallback =
-                    new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
+        Log.v("RefreshingInRepository", "true");
+        pagingBoundaryCallback =
+                new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
+        //MutableLiveData<Boolean> fetchingData = pagingBoundaryCallback._fetchingData;
 
         DataSource.Factory<Integer, Crypto> dataSourceFactory = cache.queryCryptosByRank();
 
@@ -50,9 +54,13 @@ public class CryptoRepository {
 
         LiveData<PagedList<Crypto>> pagedListData =
                 new LivePagedListBuilder<Integer, Crypto>(dataSourceFactory, pagedListConfig)
-                .setBoundaryCallback(pagingBoundaryCallback)
-                .build();
+                        .setBoundaryCallback(pagingBoundaryCallback)
+                        .build();
 
         return new CryptoResultFromDatabase(pagedListData);
+    }
+
+    public LiveData<Boolean> refresh() {
+        return pagingBoundaryCallback.refresh();
     }
 }
