@@ -2,11 +2,12 @@ package josiak.android.example.cryptocurrency.charts;
 
 import android.content.Context;
 
-import josiak.android.example.cryptocurrency.charts.api.CoinMarketCapApi;
-import josiak.android.example.cryptocurrency.charts.api.CryptoCompareApi;
+import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi;
 import josiak.android.example.cryptocurrency.charts.api.HttpClient;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptocurrencyChartsDatabase;
+import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 import josiak.android.example.cryptocurrency.charts.ui.MainListViewModelFactory;
 import okhttp3.OkHttpClient;
 

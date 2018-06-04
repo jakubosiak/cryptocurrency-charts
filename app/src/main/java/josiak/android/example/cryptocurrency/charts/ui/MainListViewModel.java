@@ -1,14 +1,12 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
-import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.PagedList;
-import android.util.Log;
 
-import josiak.android.example.cryptocurrency.charts.CryptoRepository;
+import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
 
@@ -26,14 +24,14 @@ public class MainListViewModel extends ViewModel {
 
     private MutableLiveData<String> trigger = new MutableLiveData<>();
     private LiveData<CryptoResultFromDatabase> cryptoResultFromDatabaseLiveData =
-            Transformations.map(trigger, func ->
+            Transformations.map(trigger, trigger ->
                     repository.requestCoins()
             );
 
     public LiveData<PagedList<Crypto>> cryptoPagedList =
             Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getPagedListData);
 
-    public LiveData<Boolean> fetchingData =
+    public LiveData<String> fetchingData =
             Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getFetchingData);
 
     public void init(String init) {
@@ -41,7 +39,6 @@ public class MainListViewModel extends ViewModel {
     }
 
     public void refreshList() {
-        if (repository != null)
             repository.refresh();
     }
 

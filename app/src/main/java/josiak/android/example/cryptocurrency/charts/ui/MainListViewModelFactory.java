@@ -3,7 +3,7 @@ package josiak.android.example.cryptocurrency.charts.ui;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import josiak.android.example.cryptocurrency.charts.CryptoRepository;
+import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 
 /**
  * Created by Jakub on 2018-05-25.

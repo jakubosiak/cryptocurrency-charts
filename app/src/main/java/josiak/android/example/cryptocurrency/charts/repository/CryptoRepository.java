@@ -1,16 +1,14 @@
-package josiak.android.example.cryptocurrency.charts;
+package josiak.android.example.cryptocurrency.charts.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.content.Context;
 import android.util.Log;
 
-import josiak.android.example.cryptocurrency.charts.api.CoinMarketCapApi.CoinMarketCap;
-import josiak.android.example.cryptocurrency.charts.api.CryptoCompareApi.CryptoCompare;
-import josiak.android.example.cryptocurrency.charts.api.PagingBoundaryCallback;
+import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
@@ -40,10 +38,9 @@ public class CryptoRepository {
     }
 
     public CryptoResultFromDatabase requestCoins() {
-        Log.v("RefreshingInRepository", "true");
         pagingBoundaryCallback =
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
-        LiveData<Boolean> fetchingData = pagingBoundaryCallback.fetchingData;
+        LiveData<String> fetchingData = pagingBoundaryCallback.fetchingData;
 
         DataSource.Factory<Integer, Crypto> dataSourceFactory = cache.queryCryptosByRank();
 

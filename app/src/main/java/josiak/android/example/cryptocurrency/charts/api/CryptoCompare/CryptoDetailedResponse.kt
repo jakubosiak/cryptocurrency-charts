@@ -1,4 +1,4 @@
-package josiak.android.example.cryptocurrency.charts.api
+package josiak.android.example.cryptocurrency.charts.api.CryptoCompare
 
 import com.google.gson.annotations.SerializedName
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed

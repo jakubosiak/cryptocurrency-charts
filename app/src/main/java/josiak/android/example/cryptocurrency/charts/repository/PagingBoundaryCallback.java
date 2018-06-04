@@ -1,11 +1,9 @@
-package josiak.android.example.cryptocurrency.charts.api;
+package josiak.android.example.cryptocurrency.charts.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PagedList;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -14,9 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
-import josiak.android.example.cryptocurrency.charts.api.CoinMarketCapApi.CoinMarketCap;
-import josiak.android.example.cryptocurrency.charts.api.CryptoCompareApi.CryptoCompare;
+import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi;
+import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoDetailedResponse;
+import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CryptoSimpleResponse;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
@@ -38,7 +41,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private static final int RESULTS_SIZE = 50;
     private static final String TO_SYMBOL = "USD";
     private static final int FAVOURITE_FALSE = 0;
-    private static final Object LOCK = new Object();
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;
@@ -54,8 +56,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private List<CryptoDetailed> cryptoDetailedList = new ArrayList<>();
     private List<Crypto> cryptoList = new ArrayList<>();
 
-    private MutableLiveData<Boolean> _fetchingData = new MutableLiveData<>();
-    public LiveData<Boolean> fetchingData;
+    public MutableLiveData<String> _fetchingData = new MutableLiveData<>();
+    public LiveData<String> fetchingData;
 
     public PagingBoundaryCallback(
             CoinMarketCap coinMarketCapApi,
@@ -67,18 +69,15 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         this.cache = cache;
         this.contextForResources = contextForResources;
         fetchingData = _fetchingData;
-        Log.v("RefreshingInCallback", "true");
     }
 
     public void refresh(){
-        Log.v("refresh", "true");
         if(Utilities.isOnline(contextForResources)) {
-            Log.v("isOnline",  "true");
-            _fetchingData.postValue(true);
+            _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_refreshing));
             cache.deleteCoinsBelowRank50();
             resultsFromRank = 1;
         } else {
-            _fetchingData.postValue(false);
+            _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
         }
         requestAndSaveData();
     }
@@ -103,6 +102,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     @Override
     public void onItemAtEndLoaded(Crypto itemAtEnd) {
         super.onItemAtEndLoaded(itemAtEnd);
+        _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_reached_end_list));
         requestAndSaveData();
     }
 
@@ -122,7 +122,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                     public void onFailure(Call<CryptoSimpleResponse> call, Throwable t) {
                         Log.d(TAG_COIN_MARKET_CAP_API, "failed to get data");
                         Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + t.getMessage());
-                        _fetchingData.postValue(false);
+                        _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
                         requestingInProgress = false;
                     }
 
@@ -146,7 +146,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                             requestCryptoDetailed();
                         } else {
                             Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + response.errorBody().toString());
-                            _fetchingData.postValue(false);
+                            _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
                             requestingInProgress = false;
                         }
                     }
@@ -190,7 +190,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                     createCryptoFromResponses(cryptoSimpleList, cryptoDetailedList);
                 } else {
                     Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + response.errorBody().toString());
-                    _fetchingData.postValue(false);
+                    _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
                     requestingInProgress = false;
                 }
             }
@@ -199,7 +199,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             public void onFailure(Call<CryptoDetailedResponse> call, Throwable t) {
                 Log.d(TAG_CRYPTO_COMPARE_API, "failed to get data");
                 Log.d(TAG_CRYPTO_COMPARE_API, "Unknown error " + t.getMessage());
-                _fetchingData.postValue(false);
+                _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
                 requestingInProgress = false;
             }
         });
@@ -244,7 +244,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             initialRequest = false;
             Log.v(LOG_TAG, "Deleted rows below rank 50");
         }
-        _fetchingData.postValue(false);
+        _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
         requestingInProgress = false;
     }
 }

@@ -7,6 +7,7 @@ import android.support.v7.util.DiffUtil;
 import android.view.ViewGroup;
 
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
 
 /**
  * Created by Jakub on 2018-05-23.
