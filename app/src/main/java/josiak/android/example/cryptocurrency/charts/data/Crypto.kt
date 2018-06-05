@@ -14,7 +14,8 @@ data class Crypto(
         val symbol: String,
         val rank: Int,
         val price: Float,
-        val time: Long,
+        val updatedTime: Long,
+        val insertedTime: Long,
         val volume: String,
         val changePercentage: Float,
         val marketCap: String

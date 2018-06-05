@@ -33,6 +33,12 @@ public class CryptoLocalCache {
         );
     }
 
+    public void deleteOldCoinsData(long timeBeforeFetchingData) {
+        executors.diskIO().execute(() ->
+                cryptoDao.deleteOldCoinsData(timeBeforeFetchingData)
+        );
+    }
+
     public void insertCoins(List<Crypto> cryptoList) {
         executors.diskIO().execute(() ->
                 cryptoDao.insertCoins(cryptoList)

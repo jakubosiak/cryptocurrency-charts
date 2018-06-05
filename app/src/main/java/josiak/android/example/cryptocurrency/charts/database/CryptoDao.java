@@ -28,4 +28,7 @@ public interface CryptoDao {
 
     @Query("DELETE FROM cryptos WHERE rank > 50")
     void deleteCoinsBelowRank50();
+
+    @Query("DELETE FROM cryptos WHERE insertedTime < :timeBeforeFetching")
+    void deleteOldCoinsData(long timeBeforeFetching);
 }

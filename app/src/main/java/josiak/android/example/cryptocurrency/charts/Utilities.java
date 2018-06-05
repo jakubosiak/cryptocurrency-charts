@@ -92,7 +92,7 @@ public class Utilities {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    public static Crypto cryptoConverter(CryptoSimple cryptoSimple, CryptoDetailed cryptoDetailed) {
+    public static Crypto cryptoConverter(CryptoSimple cryptoSimple, CryptoDetailed cryptoDetailed, long insertedTime) {
         DecimalFormat dfTo6Places = new DecimalFormat("#.######");
         DecimalFormat dfTo2Places = new DecimalFormat("#.##");
 
@@ -101,7 +101,7 @@ public class Utilities {
         String symbol = cryptoSimple.getSymbol();
         int rank = cryptoSimple.getRank();
         final float price;
-        long time = cryptoDetailed.getTime();
+        long updatedTime = cryptoDetailed.getTime();
         String volume = cryptoDetailed.getVolume().split("\\.")[0];
         float changePercentage = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getChangePercentage()));
         String marketCap = cryptoDetailed.getMarketCap().split("\\.")[0];
@@ -112,6 +112,6 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getPrice()));
         }
 
-        return new Crypto(id, name, symbol, rank, price, time, volume, changePercentage, marketCap);
+        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap);
     }
 }

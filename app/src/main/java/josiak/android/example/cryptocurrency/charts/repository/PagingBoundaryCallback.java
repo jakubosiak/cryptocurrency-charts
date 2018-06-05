@@ -40,6 +40,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
 
     private static final int RESULTS_SIZE = 50;
     private static final String TO_SYMBOL = "USD";
+    private long timeBeforeFetchingData;
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;
@@ -55,7 +56,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private List<CryptoDetailed> cryptoDetailedList = new ArrayList<>();
     private List<Crypto> cryptoList = new ArrayList<>();
 
-    public MutableLiveData<String> _fetchingData = new MutableLiveData<>();
+    private MutableLiveData<String> _fetchingData = new MutableLiveData<>();
     public LiveData<String> fetchingData;
 
     public PagingBoundaryCallback(
@@ -72,8 +73,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
 
     public void refresh() {
         if (Utilities.isOnline(contextForResources)) {
+            initialRequest = true;
             _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_refreshing));
-            cache.deleteCoinsBelowRank50();
             resultsFromRank = 1;
         } else {
             _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
@@ -110,6 +111,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         Log.v("requestAndSaveData", "start");
         if (requestingInProgress || !Utilities.isOnline(contextForResources)) return;
 
+        if(initialRequest)
+        timeBeforeFetchingData = System.currentTimeMillis();
         requestingInProgress = true;
         requestCryptoSimple();
     }
@@ -208,8 +211,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private void createCryptoFromResponses(List<CryptoSimple> cryptoSimpleList, List<CryptoDetailed> cryptoDetailedList) {
         if (cryptoList.size() != 0)
             cryptoList.clear();
-        Log.v("cryptoSimpleList", String.valueOf(cryptoSimpleList.size()));
-        Log.v("cryptoDetailedList", String.valueOf(cryptoDetailedList.size()));
         for (int i = 0; i < cryptoSimpleList.size() && i < cryptoDetailedList.size(); i++) {
             if (!cryptoSimpleList.get(i).getSymbol().equals(cryptoDetailedList.get(i).getSymbol())) {
                 /*Log.v("Data from lists", "at position " + String.valueOf(i) +
@@ -222,7 +223,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             } else {
                 Crypto cryptoItem = Utilities.cryptoConverter(
                         cryptoSimpleList.get(i),
-                        cryptoDetailedList.get(i));
+                        cryptoDetailedList.get(i),
+                        System.currentTimeMillis());
                 cryptoList.add(cryptoItem);
                 //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }
@@ -231,9 +233,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
             cache.insertCoins(cryptoList);
         Log.v(LOG_TAG, "Inserted " + String.valueOf(cryptoList.size()) + " to database");
         if (initialRequest && Utilities.isOnline(contextForResources)) {
-            cache.deleteCoinsBelowRank50();
+            cache.deleteOldCoinsData(timeBeforeFetchingData);
             initialRequest = false;
-            Log.v(LOG_TAG, "Deleted rows below rank 50");
+            Log.v(LOG_TAG, "Deleted old rows");
         }
         _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_false));
         requestingInProgress = false;

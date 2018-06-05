@@ -38,7 +38,6 @@ public class CryptoRepository {
         this.contextForResources = contextForResources;
     }
 
-    //@MainThread
     public CryptoResultFromDatabase requestCoins() {
         pagingBoundaryCallback =
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);

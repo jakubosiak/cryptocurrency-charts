@@ -7,7 +7,7 @@
         android:layout_height="match_parent">
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+            android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -25,7 +25,7 @@
             android:id="@+id/progress_bar_fetching_data"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:layout_alignBottom="@id/swipeRefreshLayout"
+            android:layout_alignBottom="@id/swipe_refresh_layout"
             android:visibility="gone" />
 
     </RelativeLayout>
