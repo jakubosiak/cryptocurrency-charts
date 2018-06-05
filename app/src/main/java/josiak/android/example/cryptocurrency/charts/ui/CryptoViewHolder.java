@@ -38,7 +38,7 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder {
             symbol.setText(crypto.getSymbol());
             marketCap.setText(String.valueOf(crypto.getMarketCap()));
             price.setText(String.valueOf(crypto.getPrice()));
-            change24pct.setText(String.valueOf(crypto.getRank()));
+            change24pct.setText(String.valueOf(crypto.getChangePercentage()));
             int identifier = icon.getContext().getResources().getIdentifier("btc", "drawable", icon.getContext().getPackageName());
             try {
                 Field field = R.drawable.class.getDeclaredField("btc");

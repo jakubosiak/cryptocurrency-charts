@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
 
@@ -88,5 +90,28 @@ public class Utilities {
                 (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public static Crypto cryptoConverter(CryptoSimple cryptoSimple, CryptoDetailed cryptoDetailed) {
+        DecimalFormat dfTo6Places = new DecimalFormat("#.######");
+        DecimalFormat dfTo2Places = new DecimalFormat("#.##");
+
+        long id = cryptoSimple.getId();
+        String name = cryptoSimple.getName();
+        String symbol = cryptoSimple.getSymbol();
+        int rank = cryptoSimple.getRank();
+        final float price;
+        long time = cryptoDetailed.getTime();
+        String volume = cryptoDetailed.getVolume().split("\\.")[0];
+        float changePercentage = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getChangePercentage()));
+        String marketCap = cryptoDetailed.getMarketCap().split("\\.")[0];
+
+        if (cryptoDetailed.getPrice() < 1.00) {
+            price = Float.parseFloat(dfTo6Places.format(cryptoDetailed.getPrice()));
+        } else {
+            price = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getPrice()));
+        }
+
+        return new Crypto(id, name, symbol, rank, price, time, volume, changePercentage, marketCap);
     }
 }

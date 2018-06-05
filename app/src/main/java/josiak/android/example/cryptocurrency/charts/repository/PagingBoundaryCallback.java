@@ -40,7 +40,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
 
     private static final int RESULTS_SIZE = 50;
     private static final String TO_SYMBOL = "USD";
-    private static final int FAVOURITE_FALSE = 0;
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;
@@ -71,8 +70,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         fetchingData = _fetchingData;
     }
 
-    public void refresh(){
-        if(Utilities.isOnline(contextForResources)) {
+    public void refresh() {
+        if (Utilities.isOnline(contextForResources)) {
             _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_refreshing));
             cache.deleteCoinsBelowRank50();
             resultsFromRank = 1;
@@ -221,18 +220,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                 cryptoSimpleList.remove(i);
                 i--;
             } else {
-                Crypto cryptoItem = new Crypto(
-                        cryptoSimpleList.get(i).getId(),
-                        cryptoSimpleList.get(i).getName(),
-                        cryptoSimpleList.get(i).getSymbol(),
-                        cryptoSimpleList.get(i).getRank(),
-                        cryptoDetailedList.get(i).getPrice(),
-                        cryptoDetailedList.get(i).getTime(),
-                        cryptoDetailedList.get(i).getVolume(),
-                        cryptoDetailedList.get(i).getChangePercentage(),
-                        cryptoDetailedList.get(i).getMarketCap(),
-                        FAVOURITE_FALSE
-                );
+                Crypto cryptoItem = Utilities.cryptoConverter(
+                        cryptoSimpleList.get(i),
+                        cryptoDetailedList.get(i));
                 cryptoList.add(cryptoItem);
                 //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }

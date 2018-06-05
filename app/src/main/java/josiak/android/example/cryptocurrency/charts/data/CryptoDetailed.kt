@@ -9,7 +9,7 @@ data class CryptoDetailed(
         @SerializedName("FROMSYMBOL") val symbol: String,
         @SerializedName("PRICE") val price: Float,
         @SerializedName("LASTUPDATE") val time: Long,
-        @SerializedName("VOLUME24HOURTO") val volume: Float,
+        @SerializedName("VOLUME24HOURTO") val volume: String,
         @SerializedName("CHANGEPCT24HOUR") val changePercentage: Float,
-        @SerializedName("MKTCAP") val marketCap: Float
+        @SerializedName("MKTCAP") val marketCap: String
 )

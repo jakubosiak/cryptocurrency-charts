@@ -9,14 +9,13 @@ import com.google.gson.annotations.SerializedName
  */
 @Entity(tableName = "cryptos")
 data class Crypto(
-        @PrimaryKey @SerializedName("id") var id: Long,
-        @SerializedName("name") val name: String,
-        @SerializedName("symbol") val symbol: String,
-        @SerializedName("rank") val rank: Int,
-        @SerializedName("PRICE") val price: Float,
-        @SerializedName("LASTUPDATE") val time: Long,
-        @SerializedName("VOLUME24HOURTO") val volume: Float,
-        @SerializedName("CHANGEPCT24HOUR") val changePercentage: Float,
-        @SerializedName("MKTCAP") val marketCap: Float,
-        val favourite: Int
+        @PrimaryKey var id: Long,
+        val name: String,
+        val symbol: String,
+        val rank: Int,
+        val price: Float,
+        val time: Long,
+        val volume: String,
+        val changePercentage: Float,
+        val marketCap: String
 )
