@@ -26,6 +26,7 @@ import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDat
 public class CryptocurrencyMainList extends Fragment {
     private boolean reachedLastItemInList = false;
     private ProgressBar progressBarFetchingData;
+    private String mFetchingData = "false";
 
     @Nullable
     @Override
@@ -38,20 +39,20 @@ public class CryptocurrencyMainList extends Fragment {
         viewModel.init(getString(R.string.init_CryptoResultFromDatabase));
 
         RecyclerView list = view.findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        list.setLayoutManager(layoutManager);
         SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         progressBarFetchingData = view.findViewById(R.id.progress_bar_fetching_data);
-        setupOnScrollListener(list);
 
         CryptoAdapter adapter = new CryptoAdapter();
         list.setAdapter(adapter);
+        setupOnScrollListener(list, swipeRefreshLayout);
+        initSwipeToRefresh(viewModel, swipeRefreshLayout);
 
         viewModel.cryptoPagedList.observe(this, adapter::submitList);
-        viewModel.fetchingData.observe(this, fetchingData ->
-                changeProgressBarVisibility(fetchingData, swipeRefreshLayout)
+        viewModel.fetchingData.observe(this, fetchingData -> {
+                    mFetchingData = fetchingData;
+                    changeProgressBarVisibility(fetchingData, swipeRefreshLayout, reachedLastItemInList);
+                }
         );
-        initSwipeToRefresh(viewModel, swipeRefreshLayout);
         return view;
     }
 
@@ -60,17 +61,18 @@ public class CryptocurrencyMainList extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-    private void setupOnScrollListener(RecyclerView list) {
+    private void setupOnScrollListener(RecyclerView list, SwipeRefreshLayout swipeRefreshLayout) {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
         list.setOnScrollChangeListener((view, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
             int totalItemCount = layoutManager.getItemCount();
             int visibleItemCount = layoutManager.getChildCount();
             int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
             reachedLastItemInList = visibleItemCount + firstVisibleItem >= totalItemCount;
+            changeProgressBarVisibility(mFetchingData, swipeRefreshLayout, reachedLastItemInList);
         });
     }
 
-    private void changeProgressBarVisibility(String fetchingData, SwipeRefreshLayout swipeRefreshLayout) {
+    private void changeProgressBarVisibility(String fetchingData, SwipeRefreshLayout swipeRefreshLayout, boolean reachedLastItemInList) {
         if (fetchingData.equals(getString(R.string.fetching_data_refreshing))) {
             swipeRefreshLayout.setRefreshing(true);
         } else if (reachedLastItemInList && fetchingData.equals(getString(R.string.fetching_data_reached_end_list))) {

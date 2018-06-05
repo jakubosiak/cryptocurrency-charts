@@ -38,7 +38,7 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder {
             symbol.setText(crypto.getSymbol());
             marketCap.setText(String.valueOf(crypto.getMarketCap()));
             price.setText(String.valueOf(crypto.getPrice()));
-            change24pct.setText(String.valueOf(crypto.getChangePercentage()));
+            change24pct.setText(String.valueOf(crypto.getRank()));
             int identifier = icon.getContext().getResources().getIdentifier("btc", "drawable", icon.getContext().getPackageName());
             try {
                 Field field = R.drawable.class.getDeclaredField("btc");
@@ -47,7 +47,7 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder {
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-            icon.setImageResource(identifier);
+            icon.setImageResource(R.drawable.ic_star_bottom_nav);
         }
     }
 

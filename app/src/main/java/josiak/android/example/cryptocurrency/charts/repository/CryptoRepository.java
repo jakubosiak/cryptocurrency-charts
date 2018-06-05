@@ -5,6 +5,7 @@ import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.content.Context;
+import android.support.annotation.MainThread;
 import android.util.Log;
 
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
@@ -37,6 +38,7 @@ public class CryptoRepository {
         this.contextForResources = contextForResources;
     }
 
+    //@MainThread
     public CryptoResultFromDatabase requestCoins() {
         pagingBoundaryCallback =
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
@@ -45,7 +47,7 @@ public class CryptoRepository {
         DataSource.Factory<Integer, Crypto> dataSourceFactory = cache.queryCryptosByRank();
 
         PagedList.Config pagedListConfig = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
+                .setEnablePlaceholders(true)
                 .setPageSize(PAGE_SIZE)
                 .build();
 

@@ -102,6 +102,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     @Override
     public void onItemAtEndLoaded(Crypto itemAtEnd) {
         super.onItemAtEndLoaded(itemAtEnd);
+        Log.v("onItemAtEndLoaded", "true");
         _fetchingData.postValue(contextForResources.getString(R.string.fetching_data_reached_end_list));
         requestAndSaveData();
     }
@@ -135,9 +136,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                             HashMap<String, CryptoSimple> hashMap =
                                     Utilities.replaceSymbolsIncompatibility(response.body().getItems(), contextForResources);
 
-                            Log.v("Simple Original:", hashMap.toString());
+                            //Log.v("Simple Original:", hashMap.toString());
                             HashMap<String, CryptoSimple> sortedHashMap = Utilities.sortCryptoSimpleHashMap(hashMap);
-                            Log.v("Simple Sorted:", sortedHashMap.toString());
+                            //Log.v("Simple Sorted:", sortedHashMap.toString());
                             for (Map.Entry<String, CryptoSimple> entry : sortedHashMap.entrySet()) {
                                 CryptoSimple cryptoSimple = entry.getValue();
                                 cryptoSimpleList.add(cryptoSimple);
@@ -181,9 +182,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                             cryptoDetailedHashMap.put(entry.getKey(), innerEntry.getValue());
                         }
                     }
-                    Log.v("Detailed Original", cryptoDetailedHashMap.toString());
+                    //Log.v("Detailed Original", cryptoDetailedHashMap.toString());
                     HashMap<String, CryptoDetailed> sortedHashMap = Utilities.sortCryptoDetailedHashMap(cryptoDetailedHashMap);
-                    Log.v("Detailed Sorted", sortedHashMap.toString());
+                    //Log.v("Detailed Sorted", sortedHashMap.toString());
                     for (Map.Entry<String, CryptoDetailed> entry : sortedHashMap.entrySet()) {
                         cryptoDetailedList.add(entry.getValue());
                     }
@@ -212,11 +213,11 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
         Log.v("cryptoDetailedList", String.valueOf(cryptoDetailedList.size()));
         for (int i = 0; i < cryptoSimpleList.size() && i < cryptoDetailedList.size(); i++) {
             if (!cryptoSimpleList.get(i).getSymbol().equals(cryptoDetailedList.get(i).getSymbol())) {
-                Log.v("Data from lists", "at position " + String.valueOf(i) +
+                /*Log.v("Data from lists", "at position " + String.valueOf(i) +
                         " doesn't match. CryptoSimpleSymbol vs CryptoDetailedSymbol: " +
                         cryptoSimpleList.get(i).getName() + "(" +
                         cryptoSimpleList.get(i).getSymbol() + ")" + " : " +
-                        cryptoDetailedList.get(i).getSymbol());
+                        cryptoDetailedList.get(i).getSymbol());*/
                 cryptoSimpleList.remove(i);
                 i--;
             } else {
@@ -233,7 +234,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                         FAVOURITE_FALSE
                 );
                 cryptoList.add(cryptoItem);
-                Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
+                //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }
         }
         if (cryptoList.size() > 0)
