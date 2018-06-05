@@ -1,5 +1,6 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -10,17 +11,17 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import josiak.android.example.cryptocurrency.charts.R;
+import josiak.android.example.cryptocurrency.charts.databinding.NavigationActivityBinding;
 
 public class MainActivity extends AppCompatActivity {
+    private NavigationActivityBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_activity);
+        binding = DataBindingUtil.setContentView(this, R.layout.navigation_activity);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        setSupportActionBar(binding.toolbar);
         NavHostFragment hostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.my_nav_host_fragment);
 
@@ -30,8 +31,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation(NavController navController){
-        BottomNavigationView bottomNavigation = findViewById(R.id.bottom_nav_view);
-        NavigationUI.setupWithNavController(bottomNavigation, navController);
+        NavigationUI.setupWithNavController(binding.bottomNavView, navController);
     }
 
     private void setupActionBar(NavController navController){

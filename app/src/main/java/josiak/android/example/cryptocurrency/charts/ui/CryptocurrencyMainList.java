@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,35 +23,35 @@ import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
+import josiak.android.example.cryptocurrency.charts.databinding.CryptocurrencyItemBindingImpl;
+import josiak.android.example.cryptocurrency.charts.databinding.FragmentCryptocurrencyMainListBinding;
 
 public class CryptocurrencyMainList extends Fragment {
     private boolean reachedLastItemInList = false;
-    private ProgressBar progressBarFetchingData;
     private String mFetchingData = "false";
+    private FragmentCryptocurrencyMainListBinding binding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cryptocurrency_main_list, container, false);
+        binding = DataBindingUtil.inflate
+                (inflater, R.layout.fragment_cryptocurrency_main_list, container, false);
+        View view = binding.getRoot();
 
         MainListViewModel viewModel = ViewModelProviders.of(this,
                 InjectorUtils.provideMainListViewModelFactory(getContext()))
                 .get(MainListViewModel.class);
+        CryptoAdapter adapter = new CryptoAdapter();
         viewModel.init(getString(R.string.init_CryptoResultFromDatabase));
 
-        RecyclerView list = view.findViewById(R.id.recycler_view);
-        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
-        progressBarFetchingData = view.findViewById(R.id.progress_bar_fetching_data);
-
-        CryptoAdapter adapter = new CryptoAdapter();
-        list.setAdapter(adapter);
-        setupOnScrollListener(list, swipeRefreshLayout);
-        initSwipeToRefresh(viewModel, swipeRefreshLayout);
+        binding.list.setAdapter(adapter);
+        setupOnScrollListener(binding.list, binding.swipeRefreshLayout);
+        initSwipeToRefresh(viewModel, binding.swipeRefreshLayout);
 
         viewModel.cryptoPagedList.observe(this, adapter::submitList);
         viewModel.fetchingData.observe(this, fetchingData -> {
                     mFetchingData = fetchingData;
-                    changeProgressBarVisibility(fetchingData, swipeRefreshLayout, reachedLastItemInList);
+                    changeProgressBarVisibility(fetchingData, binding.swipeRefreshLayout, reachedLastItemInList);
                 }
         );
         return view;
@@ -76,10 +77,10 @@ public class CryptocurrencyMainList extends Fragment {
         if (fetchingData.equals(getString(R.string.fetching_data_refreshing))) {
             swipeRefreshLayout.setRefreshing(true);
         } else if (reachedLastItemInList && fetchingData.equals(getString(R.string.fetching_data_reached_end_list))) {
-            progressBarFetchingData.setVisibility(View.VISIBLE);
+            binding.progressBarFetchingData.setVisibility(View.VISIBLE);
         } else if (fetchingData.equals(getString(R.string.fetching_data_false))) {
             swipeRefreshLayout.setRefreshing(false);
-            progressBarFetchingData.setVisibility(View.GONE);
+            binding.progressBarFetchingData.setVisibility(View.GONE);
         }
     }
 
