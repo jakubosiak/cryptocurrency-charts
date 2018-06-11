@@ -23,8 +23,11 @@ import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CryptoSimp
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
+import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,7 +43,7 @@ import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackSt
  * Created by Jakub on 2018-05-25.
  */
 
-public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
+public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWithFavs> {
 
     private static final String LOG_TAG = PagingBoundaryCallback.class.getSimpleName();
     private static final String TAG_COIN_MARKET_CAP_API = LOG_TAG + CoinMarketCapApi.class.getSimpleName();
@@ -66,6 +69,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private List<CryptoSimple> cryptoSimpleList = new ArrayList<>();
     private List<CryptoDetailed> cryptoDetailedList = new ArrayList<>();
     private List<Crypto> cryptoList = new ArrayList<>();
+    private List<CryptoFavs> cryptoFavsList = new ArrayList<>();
 
     private MutableLiveData<NetworkCallbackState> _fetchingData = new MutableLiveData<>();
     public LiveData<NetworkCallbackState> fetchingData;
@@ -101,7 +105,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     }
 
     @Override
-    public void onItemAtFrontLoaded(@NonNull Crypto itemAtFront) {
+    public void onItemAtFrontLoaded(@NonNull CryptoWithFavs itemAtFront) {
         super.onItemAtFrontLoaded(itemAtFront);
         Log.v("onItemAtFrontLoaded", "true");
         if (initialRequest)
@@ -110,7 +114,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     }
 
     @Override
-    public void onItemAtEndLoaded(Crypto itemAtEnd) {
+    public void onItemAtEndLoaded(CryptoWithFavs itemAtEnd) {
         super.onItemAtEndLoaded(itemAtEnd);
         Log.v("onItemAtEndLoaded", "true");
         _fetchingData.postValue(LOAD_MORE);
@@ -234,6 +238,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
     private void createCryptoFromResponses(List<CryptoSimple> cryptoSimpleList, List<CryptoDetailed> cryptoDetailedList) {
         if (cryptoList.size() != 0)
             cryptoList.clear();
+        if (cryptoFavsList.size() != 0)
+            cryptoFavsList.clear();
         for (int i = 0; i < cryptoSimpleList.size() && i < cryptoDetailedList.size(); i++) {
             if (!cryptoSimpleList.get(i).getSymbol().equals(cryptoDetailedList.get(i).getSymbol())) {
                 /*Log.v("Data from lists", "at position " + String.valueOf(i) +
@@ -249,11 +255,18 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<Crypto> {
                         cryptoDetailedList.get(i),
                         System.currentTimeMillis());
                 cryptoList.add(cryptoItem);
+
+                CryptoFavs cryptoFavs = new CryptoFavs(cryptoSimpleList.get(i).getId(), 0);
+                cryptoFavsList.add(cryptoFavs);
                 //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }
         }
-        if (cryptoList.size() > 0)
+        if (cryptoList.size() > 0) {
             cache.insertCoins(cryptoList);
+        }
+        if(cryptoFavsList.size() > 0) {
+            cache.insertCryptoFavourite(cryptoFavsList);
+        }
         Log.v(LOG_TAG, "Inserted " + String.valueOf(cryptoList.size()) + " to database");
         /*if (updateAllCoinsPerTwoWeeks && interactiveCryptoList.size() > 0) {
                 cache.insertAllCryptosInteractive(interactiveCryptoList);

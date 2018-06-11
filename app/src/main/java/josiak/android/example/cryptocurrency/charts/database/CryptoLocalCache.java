@@ -11,8 +11,10 @@ import java.util.concurrent.Future;
 
 import josiak.android.example.cryptocurrency.charts.AppExecutors;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 
 /**
@@ -22,10 +24,12 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol
 public class CryptoLocalCache {
     private AppExecutors executors;
     private CryptoDao cryptoDao;
+    private FavsDao favsDao;
 
-    public CryptoLocalCache(CryptoDao cryptoDao, AppExecutors executors) {
+    public CryptoLocalCache(CryptoDao cryptoDao, FavsDao favsDao, AppExecutors executors) {
         this.executors = executors;
         this.cryptoDao = cryptoDao;
+        this.favsDao = favsDao;
     }
 
     public void insertCoins(List<Crypto> cryptoList) {
@@ -34,7 +38,7 @@ public class CryptoLocalCache {
         );
     }
 
-    public DataSource.Factory<Integer, Crypto> queryCryptosByRank(CryptoType cryptoType, CryptoType dataTypeSearch) {
+    public DataSource.Factory<Integer, CryptoWithFavs> queryCryptosByRank(CryptoType cryptoType, CryptoType dataTypeSearch) {
         return cryptoDao.queryCryptosByRank(cryptoType, dataTypeSearch);
     }
 
@@ -74,7 +78,7 @@ public class CryptoLocalCache {
         );
     }
 
-    public LiveData<List<Crypto>> querySearchedCoins() {
+    public LiveData<List<CryptoWithFavs>> querySearchedCoins() {
         return cryptoDao.querySearchedCoins(CryptoType.SEARCH);
     }
 
@@ -101,6 +105,22 @@ public class CryptoLocalCache {
                         cryptoUpdate.getChangePercentage(),
                         cryptoUpdate.getMarketCap(),
                         cryptoUpdate.getSearchQuery())
+        );
+    }
+
+    public LiveData<List<CryptoWithFavs>> getFavouriteCryptos() {
+        return cryptoDao.getFavouriteCryptos();
+    }
+
+    public void insertCryptoFavourite(List<CryptoFavs> favs) {
+        executors.diskIO().execute(() ->
+                favsDao.insertCryptoFavourite(favs)
+        );
+    }
+
+    public void updateCryptoFavourite(int favourite, long id) {
+        executors.diskIO().execute(() ->
+                favsDao.updateCryptoFavourite(favourite, id)
         );
     }
 }

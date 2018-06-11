@@ -12,6 +12,7 @@ import java.util.List;
 
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 
 /**
@@ -24,8 +25,8 @@ public interface CryptoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertCoins(List<Crypto> cryptoList);
 
-    @Query("SELECT * FROM cryptos WHERE dataType = :dataType OR dataType = :dataTypeSearch ORDER BY rank ASC")
-    DataSource.Factory<Integer, Crypto> queryCryptosByRank(CryptoType dataType, CryptoType dataTypeSearch);
+    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE dataType = :dataType OR dataType = :dataTypeSearch ORDER BY rank ASC")
+    DataSource.Factory<Integer, CryptoWithFavs> queryCryptosByRank(CryptoType dataType, CryptoType dataTypeSearch);
 
     @Query("SELECT name, symbol FROM cryptos")
     LiveData<List<CryptoWithNameAndSymbol>> searchForCryptoNamesAndSymbols();
@@ -39,8 +40,8 @@ public interface CryptoDao {
     @Query("UPDATE cryptos SET dataType = :oldDataType WHERE (dataType = :newDataType OR dataType = :searchDataType) AND insertedTime < :timeBeforeFetching")
     void markOldData(long timeBeforeFetching, CryptoType newDataType, CryptoType oldDataType, CryptoType searchDataType);
 
-    @Query("SELECT * FROM cryptos WHERE dataType = :searchDataType")
-    LiveData<List<Crypto>> querySearchedCoins(CryptoType searchDataType);
+    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE dataType = :searchDataType")
+    LiveData<List<CryptoWithFavs>> querySearchedCoins(CryptoType searchDataType);
 
     @Query("SELECT symbol FROM cryptos WHERE symbol LIKE :searchQuery or name LIKE :searchQuery")
     String getCryptoSymbol(String searchQuery);
@@ -64,4 +65,7 @@ public interface CryptoDao {
             float changePercentage,
             String marketCap,
             String searchQuery);
+
+    @Query("SELECT * FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE favourite = 1 ORDER BY rank ASC")
+    LiveData<List<CryptoWithFavs>> getFavouriteCryptos();
 }

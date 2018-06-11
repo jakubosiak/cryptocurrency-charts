@@ -33,7 +33,6 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
 public class Utilities {
     private static DecimalFormat dfTo6Places = new DecimalFormat("#.######");
     private static DecimalFormat dfTo2Places = new DecimalFormat("#.##");
-    private static final int CRYPTO_FAVOURITE = 0;
 
     public static HashMap<String, CryptoSimple> sortCryptoSimpleHashMap(HashMap<String, CryptoSimple> unsortedMap) {
         List<Map.Entry<String, CryptoSimple>> list = new LinkedList<>(unsortedMap.entrySet());
@@ -118,7 +117,7 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getPrice()));
         }
 
-        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap, CryptoType.NEW, CRYPTO_FAVOURITE);
+        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap, CryptoType.NEW);
     }
 
     public static CryptoUpdate cryptoUpdateConverter(CryptoDetailed crypto, String searchQuery) {

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="crypto"
-            type="josiak.android.example.cryptocurrency.charts.data.Crypto" />
+            type="josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs" />
     </data>
 
     <LinearLayout

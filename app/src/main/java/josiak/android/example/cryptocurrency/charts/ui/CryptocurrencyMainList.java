@@ -1,25 +1,16 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.paging.PagedList;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,11 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -39,14 +27,12 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.navigation.NavController;
-import androidx.navigation.NavHost;
-import androidx.navigation.fragment.NavHostFragment;
 import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.databinding.FragmentCryptocurrencyMainListBinding;
 
@@ -62,7 +48,7 @@ public class CryptocurrencyMainList extends Fragment {
     private FragmentCryptocurrencyMainListBinding binding;
     private List<String> searchSuggestionsList = new ArrayList<>();
     private ArrayAdapter<String> searchAdapter;
-    private MainListViewModel viewModel;
+    private CryptoViewModel cryptoViewModel;
     private CryptoAdapter adapter;
     private CryptoSimpleAdapter simpleAdapter;
     private MaterialDialog progressDialog;
@@ -74,11 +60,11 @@ public class CryptocurrencyMainList extends Fragment {
                 (inflater, R.layout.fragment_cryptocurrency_main_list, container, false);
         View view = binding.getRoot();
         binding.setMainList(this);
-        viewModel = ViewModelProviders.of(this,
+        cryptoViewModel = ViewModelProviders.of(this,
                 InjectorUtils.provideMainListViewModelFactory(getContext()))
-                .get(MainListViewModel.class);
-        viewModel.init(getString(R.string.init_CryptoResultFromDatabase));
-        viewModel.searchForCryptoNamesAndSymbols().observe(this, namesAndSymbols -> {
+                .get(CryptoViewModel.class);
+        cryptoViewModel.init(getString(R.string.init_CryptoResultFromDatabase));
+        cryptoViewModel.searchForCryptoNamesAndSymbols().observe(this, namesAndSymbols -> {
             if (namesAndSymbols != null) {
                 if (searchSuggestionsList.size() > 0)
                     searchSuggestionsList.clear();
@@ -100,16 +86,17 @@ public class CryptocurrencyMainList extends Fragment {
         binding.list.setAdapter(adapter);
         setupOnScrollListener(binding.list, binding.swipeRefreshLayout);
         setupSearchField(binding.searchField);
-        initSwipeToRefresh(viewModel, binding.swipeRefreshLayout);
+        initSwipeToRefresh(cryptoViewModel, binding.swipeRefreshLayout);
 
-        viewModel.cryptoPagedList.observe(this, adapter::submitList);
-        viewModel.fetchingData.observe(this, fetchingData -> {
+        cryptoViewModel.cryptoPagedList.observe(this, adapter::submitList);
+        cryptoViewModel.fetchingData.observe(this, fetchingData -> {
                     mFetchingData = fetchingData;
                     changeProgressBarVisibility(fetchingData, binding.swipeRefreshLayout, reachedLastItemInList);
                     Log.v("fecthindDatastring", fetchingData.name());
                     showProgressDialogWhenGettingAllCoins(fetchingData);
                 }
         );
+
         setHasOptionsMenu(true);
         return view;
     }
@@ -147,8 +134,8 @@ public class CryptocurrencyMainList extends Fragment {
         }
     }
 
-    private void initSwipeToRefresh(MainListViewModel viewModel, SwipeRefreshLayout swipeRefreshLayout) {
-        swipeRefreshLayout.setOnRefreshListener(viewModel::refreshList);
+    private void initSwipeToRefresh(CryptoViewModel cryptoViewModel, SwipeRefreshLayout swipeRefreshLayout) {
+        swipeRefreshLayout.setOnRefreshListener(cryptoViewModel::refreshList);
     }
 
     @Override
@@ -209,8 +196,8 @@ public class CryptocurrencyMainList extends Fragment {
         });
     }
 
-    private LiveData<List<Crypto>> searchSpecifiedCoin(String searchQuery) {
-        return viewModel.searchSpecifiedCoin(searchQuery);
+    private LiveData<List<CryptoWithFavs>> searchSpecifiedCoin(String searchQuery) {
+        return cryptoViewModel.searchSpecifiedCoin(searchQuery);
     }
 
     private void showProgressDialogWhenGettingAllCoins(NetworkCallbackState state) {

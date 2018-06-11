@@ -7,12 +7,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 /**
  * Created by Kuba on 2018-06-08.
  */
 
-public class CryptoSimpleAdapter extends ListAdapter<Crypto, CryptoViewHolder> {
+public class CryptoSimpleAdapter extends ListAdapter<CryptoWithFavs, CryptoViewHolder> {
 
 
     protected CryptoSimpleAdapter() {
@@ -27,7 +28,7 @@ public class CryptoSimpleAdapter extends ListAdapter<Crypto, CryptoViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull CryptoViewHolder holder, int position) {
-        Crypto item = getItem(position);
+        CryptoWithFavs item = getItem(position);
         if(item != null){
             holder.bind(item);
         }

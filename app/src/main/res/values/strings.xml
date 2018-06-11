@@ -4,4 +4,6 @@
     <string name="searchable_hint">Search by name/symbol</string>
     <string name="get_all_coins">Getting all coins…</string>
     <string name="please_wait">please wait</string>
+    <string name="main_list">Main List</string>
+    <string name="favourites">Favourites</string>
 </resources>

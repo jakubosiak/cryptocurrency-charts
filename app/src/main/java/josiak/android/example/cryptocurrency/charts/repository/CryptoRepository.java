@@ -16,6 +16,7 @@ import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoComp
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
@@ -52,15 +53,15 @@ public class CryptoRepository {
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
         LiveData<NetworkCallbackState> fetchingData = pagingBoundaryCallback.fetchingData;
 
-        DataSource.Factory<Integer, Crypto> dataSourceFactory = cache.queryCryptosByRank(CryptoType.NEW, CryptoType.SEARCH);
+        DataSource.Factory<Integer, CryptoWithFavs> dataSourceFactory = cache.queryCryptosByRank(CryptoType.NEW, CryptoType.SEARCH);
 
         PagedList.Config pagedListConfig = new PagedList.Config.Builder()
                 .setEnablePlaceholders(true)
                 .setPageSize(PAGE_SIZE)
                 .build();
 
-        LiveData<PagedList<Crypto>> pagedListData =
-                new LivePagedListBuilder<Integer, Crypto>(dataSourceFactory, pagedListConfig)
+        LiveData<PagedList<CryptoWithFavs>> pagedListData =
+                new LivePagedListBuilder<Integer, CryptoWithFavs>(dataSourceFactory, pagedListConfig)
                         .setBoundaryCallback(pagingBoundaryCallback)
                         .build();
 
@@ -75,8 +76,16 @@ public class CryptoRepository {
         return cache.searchForCryptoNamesAndSymbols();
     }
 
-    public LiveData<List<Crypto>> searchSpecifiedCoin(String searchQuery) {
+    public LiveData<List<CryptoWithFavs>> searchSpecifiedCoin(String searchQuery) {
         simpleNetworkCalls.searchSpecifiedCoin(cache.getCryptoSymbol(searchQuery));
         return cache.querySearchedCoins();
+    }
+
+    public LiveData<List<CryptoWithFavs>> getFavouriteCryptos(){
+        return cache.getFavouriteCryptos();
+    }
+
+    public void updateCryptoFavourite(int favourite, long id){
+        cache.updateCryptoFavourite(favourite, id);
     }
 }

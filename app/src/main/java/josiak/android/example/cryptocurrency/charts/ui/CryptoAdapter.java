@@ -6,12 +6,14 @@ import android.support.v7.util.DiffUtil;
 import android.view.ViewGroup;
 
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 
 /**
  * Created by Jakub on 2018-05-23.
  */
 
-public class CryptoAdapter extends PagedListAdapter<Crypto, CryptoViewHolder>{
+public class CryptoAdapter extends PagedListAdapter<CryptoWithFavs, CryptoViewHolder>{
 
     protected CryptoAdapter() {
         super(diffCallback);
@@ -25,21 +27,21 @@ public class CryptoAdapter extends PagedListAdapter<Crypto, CryptoViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull CryptoViewHolder holder, int position) {
-        Crypto item = getItem(position);
+        CryptoWithFavs item = getItem(position);
         if(item != null) {
             holder.bind(item);
         }
     }
 
-    public static DiffUtil.ItemCallback<Crypto> diffCallback = new DiffUtil.ItemCallback<Crypto>() {
+    public static DiffUtil.ItemCallback<CryptoWithFavs> diffCallback = new DiffUtil.ItemCallback<CryptoWithFavs>() {
         @Override
-        public boolean areItemsTheSame(Crypto oldItem, Crypto newItem) {
+        public boolean areItemsTheSame(CryptoWithFavs oldItem, CryptoWithFavs newItem) {
 
             return oldItem.getId() == newItem.getId();
         }
 
         @Override
-        public boolean areContentsTheSame(Crypto oldItem, Crypto newItem) {
+        public boolean areContentsTheSame(CryptoWithFavs oldItem, CryptoWithFavs newItem) {
             return oldItem == newItem;
         }
     };

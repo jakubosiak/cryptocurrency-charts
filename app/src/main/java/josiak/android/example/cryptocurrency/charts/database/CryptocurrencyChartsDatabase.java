@@ -8,13 +8,14 @@ import android.content.Context;
 import android.util.Log;
 
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
+import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
 
 /**
  * Created by Jakub on 2018-05-25.
  */
 
 @Database(
-        entities = {Crypto.class},
+        entities = {Crypto.class, CryptoFavs.class},
         version = 1,
         exportSchema = false
 )
@@ -37,4 +38,5 @@ public abstract class CryptocurrencyChartsDatabase extends RoomDatabase {
     }
 
     public abstract CryptoDao cryptoDao();
+    public abstract FavsDao favsDao();
 }

@@ -1,17 +1,13 @@
 package josiak.android.example.cryptocurrency.charts.data
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.TypeConverters
 import josiak.android.example.cryptocurrency.charts.database.DataConverter
 
 /**
- * Created by Jakub on 2018-05-23.
+ * Created by Kuba on 2018-06-12.
  */
-@Entity(tableName = "cryptos")
-@TypeConverters(DataConverter::class)
-data class Crypto(
-        @PrimaryKey var id: Long,
+data class CryptoWithFavs(
+        var id: Long,
         val name: String,
         val symbol: String,
         val rank: Int,
@@ -21,5 +17,7 @@ data class Crypto(
         val volume: String,
         val changePercentage: Float,
         val marketCap: String,
-        val dataType: CryptoType
+        @TypeConverters(value = DataConverter::class)
+        val dataType: CryptoType,
+        val favourite: Int
 )

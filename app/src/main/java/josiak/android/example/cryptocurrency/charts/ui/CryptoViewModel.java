@@ -9,6 +9,7 @@ import android.arch.paging.PagedList;
 import java.util.List;
 
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
@@ -18,11 +19,11 @@ import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDat
  * Created by Jakub on 2018-05-25.
  */
 
-public class MainListViewModel extends ViewModel {
+public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
 
     private CryptoRepository repository;
 
-    public MainListViewModel(CryptoRepository repository) {
+    public CryptoViewModel(CryptoRepository repository) {
         this.repository = repository;
     }
 
@@ -32,7 +33,7 @@ public class MainListViewModel extends ViewModel {
                     repository.requestCoins()
             );
 
-    public LiveData<PagedList<Crypto>> cryptoPagedList =
+    public LiveData<PagedList<CryptoWithFavs>> cryptoPagedList =
             Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getPagedListData);
 
     public LiveData<NetworkCallbackState> fetchingData =
@@ -50,7 +51,11 @@ public class MainListViewModel extends ViewModel {
         return repository.searchForCryptoNamesAndSymbols();
     }
 
-    public LiveData<List<Crypto>> searchSpecifiedCoin(String searchQuery) {
-       return repository.searchSpecifiedCoin(searchQuery);
+    public LiveData<List<CryptoWithFavs>> searchSpecifiedCoin(String searchQuery) {
+        return repository.searchSpecifiedCoin(searchQuery);
+    }
+
+    public LiveData<List<CryptoWithFavs>> getFavouriteCryptos() {
+        return repository.getFavouriteCryptos();
     }
 }
