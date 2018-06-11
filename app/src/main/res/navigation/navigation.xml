@@ -3,8 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@+id/launcher_home">
-
-
     <fragment
         android:id="@+id/launcher_home"
         android:name="josiak.android.example.cryptocurrency.charts.ui.CryptocurrencyMainList"

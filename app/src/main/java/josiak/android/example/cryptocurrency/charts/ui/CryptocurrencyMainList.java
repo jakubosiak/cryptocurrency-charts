@@ -1,35 +1,71 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.navigation.NavController;
+import androidx.navigation.NavHost;
+import androidx.navigation.fragment.NavHostFragment;
 import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
+import josiak.android.example.cryptocurrency.charts.Utilities;
+import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
-import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
-import josiak.android.example.cryptocurrency.charts.databinding.CryptocurrencyItemBindingImpl;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.databinding.FragmentCryptocurrencyMainListBinding;
+
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.FINISHED;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOADED_ALL;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOAD_ALL;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOAD_MORE;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.REFRESHING;
 
 public class CryptocurrencyMainList extends Fragment {
     private boolean reachedLastItemInList = false;
-    private String mFetchingData = "false";
+    private NetworkCallbackState mFetchingData = FINISHED;
     private FragmentCryptocurrencyMainListBinding binding;
+    private List<String> searchSuggestionsList = new ArrayList<>();
+    private ArrayAdapter<String> searchAdapter;
+    private MainListViewModel viewModel;
+    private CryptoAdapter adapter;
+    private CryptoSimpleAdapter simpleAdapter;
+    private MaterialDialog progressDialog;
 
     @Nullable
     @Override
@@ -37,23 +73,44 @@ public class CryptocurrencyMainList extends Fragment {
         binding = DataBindingUtil.inflate
                 (inflater, R.layout.fragment_cryptocurrency_main_list, container, false);
         View view = binding.getRoot();
-
-        MainListViewModel viewModel = ViewModelProviders.of(this,
+        binding.setMainList(this);
+        viewModel = ViewModelProviders.of(this,
                 InjectorUtils.provideMainListViewModelFactory(getContext()))
                 .get(MainListViewModel.class);
-        CryptoAdapter adapter = new CryptoAdapter();
         viewModel.init(getString(R.string.init_CryptoResultFromDatabase));
+        viewModel.searchForCryptoNamesAndSymbols().observe(this, namesAndSymbols -> {
+            if (namesAndSymbols != null) {
+                if (searchSuggestionsList.size() > 0)
+                    searchSuggestionsList.clear();
+                for (CryptoWithNameAndSymbol entry : namesAndSymbols) {
+                    searchSuggestionsList.add(entry.getName());
+                    searchSuggestionsList.add(entry.getSymbol());
+                }
+                searchAdapter = new ArrayAdapter<>(
+                        getContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        searchSuggestionsList);
+                binding.searchField.setAdapter(searchAdapter);
+            }
+        });
+
+        adapter = new CryptoAdapter();
+        simpleAdapter = new CryptoSimpleAdapter();
 
         binding.list.setAdapter(adapter);
         setupOnScrollListener(binding.list, binding.swipeRefreshLayout);
+        setupSearchField(binding.searchField);
         initSwipeToRefresh(viewModel, binding.swipeRefreshLayout);
 
         viewModel.cryptoPagedList.observe(this, adapter::submitList);
         viewModel.fetchingData.observe(this, fetchingData -> {
                     mFetchingData = fetchingData;
                     changeProgressBarVisibility(fetchingData, binding.swipeRefreshLayout, reachedLastItemInList);
+                    Log.v("fecthindDatastring", fetchingData.name());
+                    showProgressDialogWhenGettingAllCoins(fetchingData);
                 }
         );
+        setHasOptionsMenu(true);
         return view;
     }
 
@@ -64,21 +121,27 @@ public class CryptocurrencyMainList extends Fragment {
 
     private void setupOnScrollListener(RecyclerView list, SwipeRefreshLayout swipeRefreshLayout) {
         LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
-        list.setOnScrollChangeListener((view, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            int totalItemCount = layoutManager.getItemCount();
-            int visibleItemCount = layoutManager.getChildCount();
-            int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-            reachedLastItemInList = visibleItemCount + firstVisibleItem >= totalItemCount;
-            changeProgressBarVisibility(mFetchingData, swipeRefreshLayout, reachedLastItemInList);
+        list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int totalItemCount = layoutManager.getItemCount();
+                int visibleItemCount = layoutManager.getChildCount();
+                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                reachedLastItemInList = visibleItemCount + firstVisibleItem >= totalItemCount;
+                changeProgressBarVisibility(mFetchingData, swipeRefreshLayout, reachedLastItemInList);
+            }
         });
     }
 
-    private void changeProgressBarVisibility(String fetchingData, SwipeRefreshLayout swipeRefreshLayout, boolean reachedLastItemInList) {
-        if (fetchingData.equals(getString(R.string.fetching_data_refreshing))) {
+    private void changeProgressBarVisibility(
+            NetworkCallbackState state,
+            SwipeRefreshLayout swipeRefreshLayout,
+            boolean reachedLastItemInList) {
+        if (state == REFRESHING) {
             swipeRefreshLayout.setRefreshing(true);
-        } else if (reachedLastItemInList && fetchingData.equals(getString(R.string.fetching_data_reached_end_list))) {
+        } else if (reachedLastItemInList && state == LOAD_MORE) {
             binding.progressBarFetchingData.setVisibility(View.VISIBLE);
-        } else if (fetchingData.equals(getString(R.string.fetching_data_false))) {
+        } else if (state == FINISHED) {
             swipeRefreshLayout.setRefreshing(false);
             binding.progressBarFetchingData.setVisibility(View.GONE);
         }
@@ -86,5 +149,85 @@ public class CryptocurrencyMainList extends Fragment {
 
     private void initSwipeToRefresh(MainListViewModel viewModel, SwipeRefreshLayout swipeRefreshLayout) {
         swipeRefreshLayout.setOnRefreshListener(viewModel::refreshList);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_button:
+                if (binding.searchField.getVisibility() == View.VISIBLE) {
+                    searchSpecifiedCoin(binding.searchField.getText().toString().trim()).observe(this, cryptos -> {
+                        if (binding.searchField.getVisibility() == View.VISIBLE) {
+                            binding.list.setAdapter(simpleAdapter);
+                            simpleAdapter.submitList(cryptos);
+                        }
+                    });
+                    return true;
+                } else {
+                    if (((MainActivity) getActivity()) != null) {
+                        int toolbarHeight = ((MainActivity) getActivity()).getSupportActionBar().getHeight();
+                        Toast.makeText(getContext(), "supportbarheight: " + toolbarHeight, Toast.LENGTH_SHORT).show();
+                        binding.searchField.setHeight(toolbarHeight);
+                    }
+                    binding.imgExitSearchField.setVisibility(View.VISIBLE);
+                    binding.searchField.setVisibility(View.VISIBLE);
+                    return true;
+                }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void closeSearchField(View view){
+        binding.searchField.setText("");
+        binding.searchField.clearFocus();
+        binding.list.setAdapter(adapter);
+        Utilities.hideKeyboard(getActivity());
+        binding.imgExitSearchField.setVisibility(View.GONE);
+        binding.searchField.setVisibility(View.GONE);
+    }
+
+    private void setupSearchField(AutoCompleteTextView textView) {
+        textView.setOnEditorActionListener((view, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                String searchQuery = textView.getText().toString().trim();
+                Log.v("searchQuery", searchQuery);
+                searchSpecifiedCoin(searchQuery).observe(this, cryptos -> {
+                    if (textView.getVisibility() == View.VISIBLE) {
+                        binding.list.setAdapter(simpleAdapter);
+                        simpleAdapter.submitList(cryptos);
+                    }
+                });
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private LiveData<List<Crypto>> searchSpecifiedCoin(String searchQuery) {
+        return viewModel.searchSpecifiedCoin(searchQuery);
+    }
+
+    private void showProgressDialogWhenGettingAllCoins(NetworkCallbackState state) {
+        if (state == LOAD_ALL) {
+            setMaterialDialog().show();
+        } else if (state == LOADED_ALL) {
+            setMaterialDialog().dismiss();
+        }
+    }
+
+    private MaterialDialog setMaterialDialog(){
+        if(progressDialog == null)
+         progressDialog = new MaterialDialog.Builder(getContext())
+                .title(R.string.get_all_coins)
+                .content(R.string.please_wait)
+                .progress(true, 0)
+                .build();
+        return progressDialog;
     }
 }

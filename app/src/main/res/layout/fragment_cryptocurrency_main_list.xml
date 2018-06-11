@@ -2,21 +2,54 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="mainList"
+            type="josiak.android.example.cryptocurrency.charts.ui.CryptocurrencyMainList" />
+    </data>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <AutoCompleteTextView
+            android:id="@+id/search_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:background="@color/colorPrimary"
+            android:imeOptions="actionSearch"
+            android:inputType="textAutoComplete"
+            android:paddingStart="16dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/img_exit_search_field"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignBottom="@id/search_field"
+            android:layout_alignRight="@id/search_field"
+            android:layout_alignTop="@id/search_field"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{mainList::closeSearchField}"
+            android:padding="12dp"
+            android:src="@drawable/ic_close_black_24dp"
+            android:visibility="gone" />
+
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@id/search_field">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical"
-                app:layoutManager="LinearLayoutManager">
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager">
 
             </android.support.v7.widget.RecyclerView>
         </android.support.v4.widget.SwipeRefreshLayout>

@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-alpha15'
+        classpath 'com.android.tools.build:gradle:3.2.0-alpha16'
         classpath 'android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha01'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
@@ -36,4 +36,5 @@ ext {
     pagingVersion = "1.0.0"
     retrofitVersion = "2.3.0"
     okhttpLoggingInterceptorVersion = "3.9.0"
+    materialDialogs = "0.9.6.0"
 }

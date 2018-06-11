@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -16,14 +17,16 @@ public class AppExecutors {
     // For Singleton instantiation
     private static final Object LOCK = new Object();
     private static AppExecutors sInstance;
+    private final ExecutorService withCallback;
     private final Executor diskIO;
     private final Executor mainThread;
     private final Executor networkIO;
 
-    private AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
+    private AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread, ExecutorService withCallback) {
         this.diskIO = diskIO;
         this.networkIO = networkIO;
         this.mainThread = mainThread;
+        this.withCallback = withCallback;
     }
 
     public static AppExecutors getInstance() {
@@ -31,7 +34,8 @@ public class AppExecutors {
             synchronized (LOCK) {
                 sInstance = new AppExecutors(Executors.newSingleThreadExecutor(),
                         Executors.newFixedThreadPool(3),
-                        new MainThreadExecutor());
+                        new MainThreadExecutor(),
+                        Executors.newSingleThreadExecutor());
             }
         }
         return sInstance;
@@ -47,6 +51,10 @@ public class AppExecutors {
 
     public Executor networkIO() {
         return networkIO;
+    }
+
+    public ExecutorService withCallback() {
+        return withCallback;
     }
 
     private static class MainThreadExecutor implements Executor {

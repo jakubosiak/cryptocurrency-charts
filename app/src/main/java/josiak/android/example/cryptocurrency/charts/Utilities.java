@@ -1,10 +1,13 @@
 package josiak.android.example.cryptocurrency.charts;
 
+import android.app.Activity;
 import android.arch.persistence.room.util.StringUtil;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -20,12 +23,18 @@ import java.util.Map;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
+import josiak.android.example.cryptocurrency.charts.data.CryptoType;
+import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
 
 /**
  * Created by Kuba on 2018-05-31.
  */
 
 public class Utilities {
+    private static DecimalFormat dfTo6Places = new DecimalFormat("#.######");
+    private static DecimalFormat dfTo2Places = new DecimalFormat("#.##");
+    private static final int CRYPTO_FAVOURITE = 0;
+
     public static HashMap<String, CryptoSimple> sortCryptoSimpleHashMap(HashMap<String, CryptoSimple> unsortedMap) {
         List<Map.Entry<String, CryptoSimple>> list = new LinkedList<>(unsortedMap.entrySet());
         // Sorting the list based on values
@@ -93,9 +102,6 @@ public class Utilities {
     }
 
     public static Crypto cryptoConverter(CryptoSimple cryptoSimple, CryptoDetailed cryptoDetailed, long insertedTime) {
-        DecimalFormat dfTo6Places = new DecimalFormat("#.######");
-        DecimalFormat dfTo2Places = new DecimalFormat("#.##");
-
         long id = cryptoSimple.getId();
         String name = cryptoSimple.getName();
         String symbol = cryptoSimple.getSymbol();
@@ -112,6 +118,32 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getPrice()));
         }
 
-        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap);
+        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap, CryptoType.NEW, CRYPTO_FAVOURITE);
+    }
+
+    public static CryptoUpdate cryptoUpdateConverter(CryptoDetailed crypto, String searchQuery) {
+        CryptoType searchDataType = CryptoType.SEARCH;
+        final float price;
+        long updatedTime = crypto.getTime();
+        long insertedTime = System.currentTimeMillis();
+        String volume = crypto.getVolume().split("\\.")[0];
+        float changePercentage = Float.parseFloat(dfTo2Places.format(crypto.getChangePercentage()));
+        String marketCap = crypto.getMarketCap().split("\\.")[0];
+
+        if (crypto.getPrice() < 1.00) {
+            price = Float.parseFloat(dfTo6Places.format(crypto.getPrice()));
+        } else {
+            price = Float.parseFloat(dfTo2Places.format(crypto.getPrice()));
+        }
+
+        return new CryptoUpdate(searchDataType, price, updatedTime, insertedTime, volume, changePercentage, marketCap, searchQuery);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

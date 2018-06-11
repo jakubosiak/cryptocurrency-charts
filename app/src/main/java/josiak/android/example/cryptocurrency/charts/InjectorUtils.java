@@ -8,6 +8,7 @@ import josiak.android.example.cryptocurrency.charts.api.HttpClient;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptocurrencyChartsDatabase;
 import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
+import josiak.android.example.cryptocurrency.charts.repository.SimpleNetworkCalls;
 import josiak.android.example.cryptocurrency.charts.ui.MainListViewModelFactory;
 import okhttp3.OkHttpClient;
 
@@ -29,11 +30,16 @@ public class InjectorUtils {
         return new CryptoLocalCache(database.cryptoDao(), provideAppExecutors());
     }
 
+    private static SimpleNetworkCalls provideSimpleNetworkCalls(Context context){
+        return new SimpleNetworkCalls(CryptoCompareApi.create(), provideCryptoLocalCache(context));
+    }
+
     private static CryptoRepository provideCryptoRepository(Context context){
         return new CryptoRepository(
                 CoinMarketCapApi.create(),
                 CryptoCompareApi.create(),
                 provideCryptoLocalCache(context),
+                provideSimpleNetworkCalls(context),
                 context);
     }
 
