@@ -53,7 +53,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
     private static final String TO_SYMBOL = "USD";
     private long timeBeforeFetchingData;
     private static final long TWO_WEEKS_IN_MILLIS = 1000 * 60 * 60 * 24 * 14;
-    private static final Object LOCK = new Object();
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;

@@ -82,7 +82,6 @@ public class CryptocurrencyMainList extends Fragment {
 
         adapter = new CryptoAdapter();
         simpleAdapter = new CryptoSimpleAdapter();
-
         binding.list.setAdapter(adapter);
         setupOnScrollListener(binding.list, binding.swipeRefreshLayout);
         setupSearchField(binding.searchField);
@@ -159,7 +158,6 @@ public class CryptocurrencyMainList extends Fragment {
                 } else {
                     if (((MainActivity) getActivity()) != null) {
                         int toolbarHeight = ((MainActivity) getActivity()).getSupportActionBar().getHeight();
-                        Toast.makeText(getContext(), "supportbarheight: " + toolbarHeight, Toast.LENGTH_SHORT).show();
                         binding.searchField.setHeight(toolbarHeight);
                     }
                     binding.imgExitSearchField.setVisibility(View.VISIBLE);

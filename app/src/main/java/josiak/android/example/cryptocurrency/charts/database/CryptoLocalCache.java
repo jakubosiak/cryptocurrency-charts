@@ -123,4 +123,16 @@ public class CryptoLocalCache {
                 favsDao.updateCryptoFavourite(favourite, id)
         );
     }
+
+    public List<String> getFavourites() {
+        Future<List<String>> symbols = executors.withCallback().submit(() ->
+                favsDao.getFavourites()
+        );
+        try {
+            return symbols.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

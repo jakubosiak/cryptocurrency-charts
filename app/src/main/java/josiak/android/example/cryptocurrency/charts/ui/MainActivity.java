@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import josiak.android.example.cryptocurrency.charts.R;
@@ -41,5 +42,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupActionBar(NavController navController) {
         NavigationUI.setupActionBarWithNavController(this, navController, null);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(null,
+                Navigation.findNavController(this, R.id.my_nav_host_fragment));
     }
 }

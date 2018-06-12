@@ -47,6 +47,10 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
         repository.refresh();
     }
 
+    public void refreshFavs(){
+        repository.refreshFavs();
+    }
+
     public LiveData<List<CryptoWithNameAndSymbol>> searchForCryptoNamesAndSymbols() {
         return repository.searchForCryptoNamesAndSymbols();
     }
@@ -57,5 +61,13 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
 
     public LiveData<List<CryptoWithFavs>> getFavouriteCryptos() {
         return repository.getFavouriteCryptos();
+    }
+
+    public void updateFavouriteCryptos(){
+        repository.updateFavouriteCryptos();
+    }
+
+    public LiveData<NetworkCallbackState> favsState(){
+        return repository.favsState();
     }
 }

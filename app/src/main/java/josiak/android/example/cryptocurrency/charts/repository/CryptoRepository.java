@@ -88,4 +88,16 @@ public class CryptoRepository {
     public void updateCryptoFavourite(int favourite, long id){
         cache.updateCryptoFavourite(favourite, id);
     }
+
+    public void updateFavouriteCryptos(){
+        simpleNetworkCalls.updateFavouriteCryptos();
+    }
+
+    public void refreshFavs(){
+        simpleNetworkCalls.refreshFavs();
+    }
+
+    public LiveData<NetworkCallbackState> favsState(){
+        return simpleNetworkCalls.state;
+    }
 }

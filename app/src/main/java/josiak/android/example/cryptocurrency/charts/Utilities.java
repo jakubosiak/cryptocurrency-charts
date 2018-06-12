@@ -120,8 +120,7 @@ public class Utilities {
         return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap, CryptoType.NEW);
     }
 
-    public static CryptoUpdate cryptoUpdateConverter(CryptoDetailed crypto, String searchQuery) {
-        CryptoType searchDataType = CryptoType.SEARCH;
+    public static CryptoUpdate cryptoUpdateConverter(CryptoType dataType, CryptoDetailed crypto, String searchQuery) {
         final float price;
         long updatedTime = crypto.getTime();
         long insertedTime = System.currentTimeMillis();
@@ -135,7 +134,7 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(crypto.getPrice()));
         }
 
-        return new CryptoUpdate(searchDataType, price, updatedTime, insertedTime, volume, changePercentage, marketCap, searchQuery);
+        return new CryptoUpdate(dataType, price, updatedTime, insertedTime, volume, changePercentage, marketCap, searchQuery);
     }
 
     public static void hideKeyboard(Activity activity) {
