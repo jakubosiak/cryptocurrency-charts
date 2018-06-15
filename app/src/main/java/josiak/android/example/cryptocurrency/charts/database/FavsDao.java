@@ -22,6 +22,7 @@ public interface FavsDao {
     @Query("UPDATE favsCrypto SET favourite = :favourite WHERE id = :id")
     void updateCryptoFavourite(int favourite, long id);
 
-    @Query("SELECT symbol FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE favourite = 1 ORDER BY rank ASC")
+    @Query("SELECT symbol FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id " +
+            "WHERE favourite = 1 ORDER BY rank ASC")
     List<String> getFavourites();
 }

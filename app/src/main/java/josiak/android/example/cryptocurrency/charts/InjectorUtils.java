@@ -31,7 +31,7 @@ public class InjectorUtils {
     }
 
     private static SimpleNetworkCalls provideSimpleNetworkCalls(Context context){
-        return new SimpleNetworkCalls(CryptoCompareApi.create(), provideCryptoLocalCache(context));
+        return new SimpleNetworkCalls(CryptoCompareApi.create(), provideCryptoLocalCache(context), context);
     }
 
     public static CryptoRepository provideCryptoRepository(Context context){

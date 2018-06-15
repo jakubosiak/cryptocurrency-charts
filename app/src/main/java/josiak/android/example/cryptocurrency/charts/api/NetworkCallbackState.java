@@ -5,5 +5,5 @@ package josiak.android.example.cryptocurrency.charts.api;
  */
 
 public enum NetworkCallbackState {
-REFRESHING, FINISHED, LOAD_MORE, LOAD_ALL, LOADED_ALL
+    REFRESHING, FINISHED, LOAD_MORE, LOAD_ALL, LOADED_ALL, NO_INTERNET
 }

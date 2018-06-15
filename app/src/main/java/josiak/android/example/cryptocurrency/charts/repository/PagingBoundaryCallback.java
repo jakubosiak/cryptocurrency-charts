@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi;
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
@@ -27,7 +26,6 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
-import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,6 +35,7 @@ import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackSt
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOADED_ALL;
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOAD_ALL;
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.LOAD_MORE;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.NO_INTERNET;
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.REFRESHING;
 
 /**
@@ -52,7 +51,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
     private static final int RESULTS_SIZE = 50;
     private static final String TO_SYMBOL = "USD";
     private long timeBeforeFetchingData;
-    private static final long TWO_WEEKS_IN_MILLIS = 1000 * 60 * 60 * 24 * 14;
 
     private CoinMarketCap coinMarketCapApi;
     private CryptoCompare cryptoCompareApi;
@@ -62,7 +60,7 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
     private int resultsFromRank = 1;
     private boolean requestingInProgress = false;
     private boolean initialRequest = true;
-    private boolean updateAllCoinsPerTwoWeeks = false;
+    private boolean getAllCoins = false;
 
     private HashMap<String, CryptoDetailed> cryptoDetailedHashMap = new HashMap<>();
     private List<CryptoSimple> cryptoSimpleList = new ArrayList<>();
@@ -86,12 +84,10 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
     }
 
     public void refresh() {
-        if (!updateAllCoinsPerTwoWeeks && Utilities.isOnline(contextForResources)) {
+        if (!getAllCoins && Utilities.isOnline(contextForResources)) {
             initialRequest = true;
             _fetchingData.postValue(REFRESHING);
             resultsFromRank = 1;
-        } else {
-            _fetchingData.postValue(FINISHED);
         }
         requestAndSaveData();
     }
@@ -122,11 +118,14 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
 
     private void requestAndSaveData() {
         Log.v("requestAndSaveData", "start");
-        if (requestingInProgress || !Utilities.isOnline(contextForResources)) return;
-        timeBeforeFetchingData = System.currentTimeMillis();
-        if (initialRequest) {
-            setUpdateAllCoinsPerTwoWeeks();
+        if (requestingInProgress) return;
+        if (!Utilities.isOnline(contextForResources)) {
+            _fetchingData.postValue(NO_INTERNET);
+            return;
         }
+        timeBeforeFetchingData = System.currentTimeMillis();
+        if (initialRequest)
+            setUpdateAllCoins();
         requestCryptoSimple();
     }
 
@@ -141,18 +140,12 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                         Log.d(TAG_COIN_MARKET_CAP_API, "failed to get data");
                         Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + t.getMessage());
                         _fetchingData.postValue(FINISHED);
-
                         requestingInProgress = false;
                     }
 
                     @Override
                     public void onResponse(Call<CryptoSimpleResponse> call, Response<CryptoSimpleResponse> response) {
                         Log.d(TAG_COIN_MARKET_CAP_API, "got response: " + response.toString());
-                        if (response.code() == 404) {
-                            Log.v("404", "helloŻurek:)");
-
-                            Log.v("amountOfCryptos", String.valueOf(cache.getAmountOfCryptos()));
-                        }
                         if (response.isSuccessful()) {
                             Log.v("data null?", response.body().getItems().toString());
                             if (cryptoSimpleList.size() > 0)
@@ -172,9 +165,9 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                         } else {
                             Log.d(TAG_COIN_MARKET_CAP_API, "Unknown error " + response.errorBody().toString());
                             _fetchingData.postValue(FINISHED);
-                            if(updateAllCoinsPerTwoWeeks){
+                            if (getAllCoins) {
                                 _fetchingData.postValue(LOADED_ALL);
-                                updateAllCoinsPerTwoWeeks = false;
+                                getAllCoins = false;
                             }
                             requestingInProgress = false;
                         }
@@ -211,7 +204,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                         }
                     }
                     //Log.v("Detailed Original", cryptoDetailedHashMap.toString());
-                    HashMap<String, CryptoDetailed> sortedHashMap = Utilities.sortCryptoDetailedHashMap(cryptoDetailedHashMap);
+                    HashMap<String, CryptoDetailed> sortedHashMap =
+                            Utilities.sortCryptoDetailedHashMap(cryptoDetailedHashMap);
                     //Log.v("Detailed Sorted", sortedHashMap.toString());
                     for (Map.Entry<String, CryptoDetailed> entry : sortedHashMap.entrySet()) {
                         cryptoDetailedList.add(entry.getValue());
@@ -260,12 +254,10 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                 //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }
         }
-        if (cryptoList.size() > 0) {
+        if (cryptoList.size() > 0)
             cache.insertCoins(cryptoList);
-        }
-        if(cryptoFavsList.size() > 0) {
+        if (cryptoFavsList.size() > 0)
             cache.insertCryptoFavourite(cryptoFavsList);
-        }
         Log.v(LOG_TAG, "Inserted " + String.valueOf(cryptoList.size()) + " to database");
         /*if (updateAllCoinsPerTwoWeeks && interactiveCryptoList.size() > 0) {
                 cache.insertAllCryptosInteractive(interactiveCryptoList);
@@ -279,17 +271,29 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
         }
         _fetchingData.postValue(FINISHED);
         requestingInProgress = false;
-        if (updateAllCoinsPerTwoWeeks && Utilities.isOnline(contextForResources)) {
+        if (getAllCoins && Utilities.isOnline(contextForResources)) {
             requestAndSaveData();
         }
     }
 
-    private void setUpdateAllCoinsPerTwoWeeks() {
+    private void setUpdateAllCoins() {
         Log.v("amountOfCryptos", String.valueOf(cache.getAmountOfCryptos()));
-        if (cache.getAmountOfCryptos() == 0 || (cache.getLastUpdatedCrypto().getInsertedTime() + TWO_WEEKS_IN_MILLIS) <= timeBeforeFetchingData) {
+        if (cache.getAmountOfCryptos() == 0) {
             _fetchingData.postValue(LOAD_ALL);
             Log.v("setAllCoinsPerTwoWeeks", "true");
-            updateAllCoinsPerTwoWeeks = true;
+            getAllCoins = true;
+            requestCryptoSimple();
+        }
+    }
+
+    public void updateAllCoins() {
+        if (!Utilities.isOnline(contextForResources)) {
+            _fetchingData.postValue(NO_INTERNET);
+        } else {
+            resultsFromRank = 1;
+            _fetchingData.postValue(LOAD_ALL);
+            initialRequest = true;
+            getAllCoins = true;
             requestCryptoSimple();
         }
     }

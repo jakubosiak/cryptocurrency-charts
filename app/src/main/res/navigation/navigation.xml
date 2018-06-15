@@ -6,7 +6,7 @@
     <fragment
         android:id="@+id/launcher_main_list"
         android:name="josiak.android.example.cryptocurrency.charts.ui.CryptocurrencyMainList"
-        android:label="Main List"
+        android:label="@string/main_list"
         tools:layout="@layout/fragment_cryptocurrency_main_list" />
 
     <fragment

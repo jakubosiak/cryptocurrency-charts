@@ -5,16 +5,12 @@ import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.content.Context;
-import android.support.annotation.MainThread;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
-import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
@@ -53,7 +49,8 @@ public class CryptoRepository {
                 new PagingBoundaryCallback(coinMarketCapApi, cryptoCompareApi, cache, contextForResources);
         LiveData<NetworkCallbackState> fetchingData = pagingBoundaryCallback.fetchingData;
 
-        DataSource.Factory<Integer, CryptoWithFavs> dataSourceFactory = cache.queryCryptosByRank(CryptoType.NEW, CryptoType.SEARCH);
+        DataSource.Factory<Integer, CryptoWithFavs> dataSourceFactory =
+                cache.queryCryptosByRank(CryptoType.NEW, CryptoType.SEARCH);
 
         PagedList.Config pagedListConfig = new PagedList.Config.Builder()
                 .setEnablePlaceholders(true)
@@ -76,8 +73,11 @@ public class CryptoRepository {
         return cache.searchForCryptoNamesAndSymbols();
     }
 
-    public LiveData<List<CryptoWithFavs>> searchSpecifiedCoin(String searchQuery) {
+    public void searchSpecifiedCoin(String searchQuery) {
         simpleNetworkCalls.searchSpecifiedCoin(cache.getCryptoSymbol(searchQuery));
+    }
+
+    public LiveData<List<CryptoWithFavs>> cryptosBySearchType() {
         return cache.querySearchedCoins();
     }
 
@@ -99,5 +99,9 @@ public class CryptoRepository {
 
     public LiveData<NetworkCallbackState> favsState(){
         return simpleNetworkCalls.state;
+    }
+
+    public void updateAllCoins(){
+        pagingBoundaryCallback.updateAllCoins();
     }
 }

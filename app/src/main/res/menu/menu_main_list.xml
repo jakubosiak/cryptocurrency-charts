@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/search_button"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/get_all_coins"
+        android:icon="@drawable/ic_cloud_download"
+        android:title="@string/get_all_coins_title"
+        app:showAsAction="ifRoom"
+        />
+</menu>

@@ -25,7 +25,8 @@ public interface CryptoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertCoins(List<Crypto> cryptoList);
 
-    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE dataType = :dataType OR dataType = :dataTypeSearch ORDER BY rank ASC")
+    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id" +
+            " WHERE dataType = :dataType OR dataType = :dataTypeSearch ORDER BY rank ASC")
     DataSource.Factory<Integer, CryptoWithFavs> queryCryptosByRank(CryptoType dataType, CryptoType dataTypeSearch);
 
     @Query("SELECT name, symbol FROM cryptos")
@@ -37,10 +38,13 @@ public interface CryptoDao {
     @Query("SELECT COUNT(*) FROM cryptos")
     int amountOfCryptos();
 
-    @Query("UPDATE cryptos SET dataType = :oldDataType WHERE (dataType = :newDataType OR dataType = :searchDataType) AND insertedTime < :timeBeforeFetching")
+    @Query("UPDATE cryptos SET dataType = :oldDataType" +
+            " WHERE (dataType = :newDataType OR dataType = :searchDataType) " +
+            "AND insertedTime < :timeBeforeFetching")
     void markOldData(long timeBeforeFetching, CryptoType newDataType, CryptoType oldDataType, CryptoType searchDataType);
 
-    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE dataType = :searchDataType")
+    @Query("SELECT *, favourite FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id" +
+            " WHERE dataType = :searchDataType ORDER BY rank ASC")
     LiveData<List<CryptoWithFavs>> querySearchedCoins(CryptoType searchDataType);
 
     @Query("SELECT symbol FROM cryptos WHERE symbol LIKE :searchQuery or name LIKE :searchQuery")
@@ -66,6 +70,7 @@ public interface CryptoDao {
             String marketCap,
             String searchQuery);
 
-    @Query("SELECT * FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id WHERE favourite = 1 ORDER BY rank ASC")
+    @Query("SELECT * FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id" +
+            " WHERE favourite = 1 ORDER BY rank ASC")
     LiveData<List<CryptoWithFavs>> getFavouriteCryptos();
 }

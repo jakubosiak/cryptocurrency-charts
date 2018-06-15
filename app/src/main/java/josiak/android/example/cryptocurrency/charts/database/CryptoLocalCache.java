@@ -2,9 +2,6 @@ package josiak.android.example.cryptocurrency.charts.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
-import android.util.Log;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,12 +35,14 @@ public class CryptoLocalCache {
         );
     }
 
-    public DataSource.Factory<Integer, CryptoWithFavs> queryCryptosByRank(CryptoType cryptoType, CryptoType dataTypeSearch) {
+    public DataSource.Factory<Integer, CryptoWithFavs> queryCryptosByRank(
+            CryptoType cryptoType, CryptoType dataTypeSearch) {
         return cryptoDao.queryCryptosByRank(cryptoType, dataTypeSearch);
     }
 
     public LiveData<List<CryptoWithNameAndSymbol>> searchForCryptoNamesAndSymbols() {
-        Future<LiveData<List<CryptoWithNameAndSymbol>>> namesAndSymbols = executors.withCallback().submit(cryptoDao::searchForCryptoNamesAndSymbols);
+        Future<LiveData<List<CryptoWithNameAndSymbol>>> namesAndSymbols =
+                executors.withCallback().submit(cryptoDao::searchForCryptoNamesAndSymbols);
         try {
             return namesAndSymbols.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -72,7 +71,11 @@ public class CryptoLocalCache {
         }
     }
 
-    public void markOldData(long timeBeforeFetchingData, CryptoType newDataType, CryptoType oldDataType, CryptoType searchDataType) {
+    public void markOldData(
+            long timeBeforeFetchingData,
+            CryptoType newDataType,
+            CryptoType oldDataType,
+            CryptoType searchDataType) {
         executors.diskIO().execute(() ->
                 cryptoDao.markOldData(timeBeforeFetchingData, newDataType, oldDataType, searchDataType)
         );

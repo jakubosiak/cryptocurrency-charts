@@ -1,17 +1,10 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
-import android.app.SearchManager;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatDelegate;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         binding = DataBindingUtil.setContentView(this, R.layout.navigation_activity);
         NavHostFragment hostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.my_nav_host_fragment);

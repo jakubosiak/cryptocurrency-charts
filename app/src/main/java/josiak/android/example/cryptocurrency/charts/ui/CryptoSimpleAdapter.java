@@ -2,11 +2,8 @@ package josiak.android.example.cryptocurrency.charts.ui;
 
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 /**

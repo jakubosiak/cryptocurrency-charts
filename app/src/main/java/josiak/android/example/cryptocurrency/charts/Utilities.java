@@ -1,17 +1,14 @@
 package josiak.android.example.cryptocurrency.charts;
 
 import android.app.Activity;
-import android.arch.persistence.room.util.StringUtil;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,6 +22,7 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
+import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 /**
  * Created by Kuba on 2018-05-31.
@@ -33,6 +31,9 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
 public class Utilities {
     private static DecimalFormat dfTo6Places = new DecimalFormat("#.######");
     private static DecimalFormat dfTo2Places = new DecimalFormat("#.##");
+    private static StringBuilder marketCapReverse = new StringBuilder();
+    private static StringBuilder marketCap = new StringBuilder();
+    private static final String fiatCurrency = "$";
 
     public static HashMap<String, CryptoSimple> sortCryptoSimpleHashMap(HashMap<String, CryptoSimple> unsortedMap) {
         List<Map.Entry<String, CryptoSimple>> list = new LinkedList<>(unsortedMap.entrySet());
@@ -70,14 +71,15 @@ public class Utilities {
         return sortedMap;
     }
 
-    public static HashMap<String, CryptoSimple> replaceSymbolsIncompatibility(HashMap<String, CryptoSimple> hashMap, Context context){
+    public static HashMap<String, CryptoSimple> replaceSymbolsIncompatibility(
+            HashMap<String, CryptoSimple> hashMap, Context context) {
         String[] symbolConflictList = context.getResources().getStringArray(R.array.symbolConflictList);
         int symbolConflictListLength = symbolConflictList.length;
         String[] symbolKeys = new String[symbolConflictListLength];
         List<CryptoSimple> cryptoNewCustomSymbolList = new ArrayList<>();
         for (Map.Entry<String, CryptoSimple> entryExceptions : hashMap.entrySet()) {
-            for(int i = 0; i<symbolConflictListLength; i++){
-                if(entryExceptions.getValue().getSymbol().equals(symbolConflictList[i])){
+            for (int i = 0; i < symbolConflictListLength; i++) {
+                if (entryExceptions.getValue().getSymbol().equals(symbolConflictList[i])) {
                     symbolKeys[i] = entryExceptions.getKey();
                     cryptoNewCustomSymbolList.add(new CryptoSimple(entryExceptions.getValue().getId(),
                             entryExceptions.getValue().getName(),
@@ -86,7 +88,7 @@ public class Utilities {
                 }
             }
         }
-        for(int j = 0; j<cryptoNewCustomSymbolList.size(); j++) {
+        for (int j = 0; j < cryptoNewCustomSymbolList.size(); j++) {
             hashMap.remove(symbolKeys[j]);
             hashMap.put(cryptoNewCustomSymbolList.get(j).getSymbol(), cryptoNewCustomSymbolList.get(j));
         }
@@ -117,7 +119,8 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(cryptoDetailed.getPrice()));
         }
 
-        return new Crypto(id, name, symbol, rank, price, updatedTime, insertedTime, volume, changePercentage, marketCap, CryptoType.NEW);
+        return new Crypto(id, name, symbol, rank, price, updatedTime,
+                insertedTime, volume, changePercentage, marketCap, CryptoType.NEW);
     }
 
     public static CryptoUpdate cryptoUpdateConverter(CryptoType dataType, CryptoDetailed crypto, String searchQuery) {
@@ -134,7 +137,8 @@ public class Utilities {
             price = Float.parseFloat(dfTo2Places.format(crypto.getPrice()));
         }
 
-        return new CryptoUpdate(dataType, price, updatedTime, insertedTime, volume, changePercentage, marketCap, searchQuery);
+        return new CryptoUpdate(dataType, price, updatedTime,
+                insertedTime, volume, changePercentage, marketCap, searchQuery);
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -143,5 +147,23 @@ public class Utilities {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    public static String setMarketCap(CryptoWithFavs crypto) {
+        marketCapReverse.setLength(0);
+        marketCap.setLength(0);
+        for (int i = crypto.getMarketCap().length() - 1; i >= 0; i--) {
+            marketCapReverse.append(crypto.getMarketCap().charAt(i));
+            if (marketCapReverse.length() == 3 ||
+                    (marketCapReverse.length() >= 7 && marketCapReverse.length() % 4 == 3)) {
+                marketCapReverse.append(" ");
+            }
+        }
+        for (int i = marketCapReverse.length() - 1; i >= 0; i--) {
+            marketCap.append(marketCapReverse.toString().charAt(i));
+        }
+        if (String.valueOf(marketCap.charAt(0)).equals(" "))
+            marketCap.deleteCharAt(0);
+        return fiatCurrency + marketCap.toString();
     }
 }

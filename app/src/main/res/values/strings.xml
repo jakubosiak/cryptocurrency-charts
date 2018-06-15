@@ -3,7 +3,10 @@
     <string name="init_CryptoResultFromDatabase">triggerInitialRequest</string>
     <string name="searchable_hint">Search by name/symbol</string>
     <string name="get_all_coins">Getting all coins…</string>
-    <string name="please_wait">please wait</string>
-    <string name="main_list">Main List</string>
+    <string name="please_wait">Please wait</string>
+    <string name="main_list">Full List</string>
     <string name="favourites">Favourites</string>
+    <string name="get_all_coins_title">Get all coins</string>
+    <string name="search">Search</string>
+    <string name="no_internet">No internet connection</string>
 </resources>

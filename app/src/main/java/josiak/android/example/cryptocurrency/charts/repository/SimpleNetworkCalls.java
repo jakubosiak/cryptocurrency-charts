@@ -2,6 +2,7 @@ package josiak.android.example.cryptocurrency.charts.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoDetailedResponse;
@@ -17,12 +17,12 @@ import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
-import josiak.android.example.cryptocurrency.charts.database.FavsDao;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.FINISHED;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.NO_INTERNET;
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.REFRESHING;
 
 /**
@@ -34,23 +34,31 @@ public class SimpleNetworkCalls {
     private CryptoLocalCache cache;
     private static final String TO_SYMBOL = "USD";
     private int index = 0;
+    private Context context;
     private boolean requestingInProgress = false;
     private static final String LOG_TAG = SimpleNetworkCalls.class.getSimpleName();
     private List<String> queryValues = new ArrayList<>();
     private MutableLiveData<NetworkCallbackState> _state = new MutableLiveData<>();
     public LiveData<NetworkCallbackState> state;
+    private StringBuilder symbolsList = new StringBuilder();
 
     public SimpleNetworkCalls(
             CryptoCompare cryptoCompareApi,
-            CryptoLocalCache cache) {
+            CryptoLocalCache cache,
+            Context context) {
         this.cryptoCompareApi = cryptoCompareApi;
         this.cache = cache;
+        this.context = context;
         state = _state;
     }
 
-    public void refreshFavs(){
-        _state.postValue(REFRESHING);
-        updateFavouriteCryptos();
+    public void refreshFavs() {
+        if (!Utilities.isOnline(context)) {
+            _state.postValue(NO_INTERNET);
+        } else {
+            _state.postValue(REFRESHING);
+            updateFavouriteCryptos();
+        }
     }
 
     public void searchSpecifiedCoin(String searchQuery) {
@@ -58,9 +66,10 @@ public class SimpleNetworkCalls {
     }
 
     public void updateFavouriteCryptos() {
-        StringBuilder symbolsList = new StringBuilder();
         List<String> favsSymbols = cache.getFavourites();
 
+        if (queryValues.size() > 0)
+            queryValues.clear();
         for (int i = 0; i < favsSymbols.size(); i++) {
             symbolsList
                     .append(favsSymbols.get(i))
@@ -77,7 +86,7 @@ public class SimpleNetworkCalls {
             }
         }
 
-        if(favsSymbols.size() == 0){
+        if (favsSymbols.size() == 0) {
             _state.postValue(FINISHED);
         }
     }
@@ -93,7 +102,10 @@ public class SimpleNetworkCalls {
                         HashMap<String, HashMap<String, CryptoDetailed>> hashMap = response.body().getList();
                         for (Map.Entry<String, HashMap<String, CryptoDetailed>> entry : hashMap.entrySet()) {
                             for (Map.Entry<String, CryptoDetailed> innerEntry : entry.getValue().entrySet()) {
-                                cache.updateDataAfterSearch(Utilities.cryptoUpdateConverter(CryptoType.SEARCH, innerEntry.getValue(), searchQuery));
+                                cache.updateDataAfterSearch(Utilities.cryptoUpdateConverter(
+                                        CryptoType.SEARCH,
+                                        innerEntry.getValue(),
+                                        searchQuery));
                                 Log.v("added", "searchQuery");
                             }
                         }
@@ -126,7 +138,10 @@ public class SimpleNetworkCalls {
                             HashMap<String, HashMap<String, CryptoDetailed>> hashMap = response.body().getList();
                             for (Map.Entry<String, HashMap<String, CryptoDetailed>> entry : hashMap.entrySet()) {
                                 for (Map.Entry<String, CryptoDetailed> innerEntry : entry.getValue().entrySet()) {
-                                    cache.updateDataAfterSearch(Utilities.cryptoUpdateConverter(CryptoType.NEW, innerEntry.getValue(), innerEntry.getValue().getSymbol()));
+                                    cache.updateDataAfterSearch(Utilities.cryptoUpdateConverter(
+                                            CryptoType.NEW,
+                                            innerEntry.getValue(),
+                                            innerEntry.getValue().getSymbol()));
                                     Log.v("added", "searchQuery");
                                 }
                             }
@@ -151,7 +166,6 @@ public class SimpleNetworkCalls {
                 requestingInProgress = false;
             } else {
                 _state.postValue(FINISHED);
-                queryValues.clear();
                 index = 0;
             }
         }

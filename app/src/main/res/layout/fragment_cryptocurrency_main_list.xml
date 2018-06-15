@@ -18,7 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
+            android:textColorHint="@color/textColor"
+            android:textColor="@color/colorAccent"
             android:background="@color/colorPrimary"
+            android:hint="@string/search"
             android:imeOptions="actionSearch"
             android:inputType="textAutoComplete"
             android:paddingStart="16dp"
@@ -35,14 +38,16 @@
             android:focusable="true"
             android:onClick="@{mainList::closeSearchField}"
             android:padding="12dp"
-            android:src="@drawable/ic_close_black_24dp"
+            android:src="@drawable/ic_close"
             android:visibility="gone" />
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/search_field">
+            android:layout_below="@id/search_field"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/list"

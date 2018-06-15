@@ -3,7 +3,6 @@ package josiak.android.example.cryptocurrency.charts.ui;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
-import android.arch.lifecycle.ViewModel;
 import android.arch.paging.PagedList;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
-import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
 
 /**
@@ -55,8 +53,12 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
         return repository.searchForCryptoNamesAndSymbols();
     }
 
-    public LiveData<List<CryptoWithFavs>> searchSpecifiedCoin(String searchQuery) {
-        return repository.searchSpecifiedCoin(searchQuery);
+    public void searchSpecifiedCoin(String searchQuery) {
+        repository.searchSpecifiedCoin(searchQuery);
+    }
+
+    public LiveData<List<CryptoWithFavs>> cryptosBySearchType() {
+        return repository.cryptosBySearchType();
     }
 
     public LiveData<List<CryptoWithFavs>> getFavouriteCryptos() {
@@ -69,5 +71,9 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
 
     public LiveData<NetworkCallbackState> favsState(){
         return repository.favsState();
+    }
+
+    public void updateAllCoins(){
+        repository.updateAllCoins();
     }
 }

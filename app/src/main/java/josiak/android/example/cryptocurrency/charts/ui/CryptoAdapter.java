@@ -5,9 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.view.ViewGroup;
 
-import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
-import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 
 /**
  * Created by Jakub on 2018-05-23.

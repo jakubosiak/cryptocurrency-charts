@@ -1,6 +1,5 @@
 package josiak.android.example.cryptocurrency.charts.database;
 
-import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 
 import android.arch.persistence.room.TypeConverter;

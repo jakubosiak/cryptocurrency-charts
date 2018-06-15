@@ -10,14 +10,17 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.navigation.Navigation;
 import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
+import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.databinding.FragmentFavouritesBinding;
 
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.FINISHED;
+import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.NO_INTERNET;
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.REFRESHING;
 
 public class Favourites extends Fragment {
@@ -25,7 +28,9 @@ public class Favourites extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_favourites, container, false);
         CryptoViewModel cryptoViewModel = ViewModelProviders.of(this,
                 InjectorUtils.provideMainListViewModelFactory(getContext())).get(CryptoViewModel.class);
@@ -34,24 +39,28 @@ public class Favourites extends Fragment {
         binding.list.setAdapter(adapter);
         initSwipeToRefresh(cryptoViewModel, binding.swipeToRefresh);
         cryptoViewModel.getFavouriteCryptos().observe(this, adapter::submitList);
-        cryptoViewModel.favsState().observe(this, state -> {
-                    if (state == REFRESHING)
-                        binding.swipeToRefresh.setRefreshing(true);
-                    else if (state == FINISHED)
-                        binding.swipeToRefresh.setRefreshing(false);
-                }
-        );
+        observeNetworkCallbackState(cryptoViewModel);
         cryptoViewModel.updateFavouriteCryptos();
-        return binding.getRoot();
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        return binding.getRoot();
     }
 
     private void initSwipeToRefresh(CryptoViewModel cryptoViewModel, SwipeRefreshLayout swipeRefreshLayout) {
         swipeRefreshLayout.setOnRefreshListener(cryptoViewModel::refreshFavs);
+    }
+
+    private void showToastNoInternet(NetworkCallbackState state) {
+        if (state == NO_INTERNET)
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+    }
+
+    private void observeNetworkCallbackState(CryptoViewModel cryptoViewModel) {
+        cryptoViewModel.favsState().observe(this, state -> {
+            showToastNoInternet(state);
+            if (state == REFRESHING)
+                binding.swipeToRefresh.setRefreshing(true);
+            else if (state == FINISHED || state == NO_INTERNET)
+                binding.swipeToRefresh.setRefreshing(false);
+        });
     }
 }
