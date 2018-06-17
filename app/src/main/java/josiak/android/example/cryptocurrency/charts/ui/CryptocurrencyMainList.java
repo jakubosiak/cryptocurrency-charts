@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,6 +29,9 @@ import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
+import josiak.android.example.cryptocurrency.charts.dagger2.AdaptersComponent;
+import josiak.android.example.cryptocurrency.charts.dagger2.ApplicationContextModule;
+import josiak.android.example.cryptocurrency.charts.dagger2.DaggerAdaptersComponent;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.databinding.FragmentCryptocurrencyMainListBinding;
 
@@ -60,8 +62,13 @@ public class CryptocurrencyMainList extends Fragment {
         View view = binding.getRoot();
         binding.setMainList(this);
 
-        adapter = new CryptoAdapter();
-        simpleAdapter = new CryptoSimpleAdapter();
+        AdaptersComponent adaptersComponent = DaggerAdaptersComponent.builder()
+                .applicationContextModule(new ApplicationContextModule(getContext()))
+                .build();
+
+        adapter = adaptersComponent.getCryptoAdapter();
+        simpleAdapter = adaptersComponent.getCryptoSimpleAdapter();
+
         binding.list.setAdapter(adapter);
 
         cryptoViewModel = ViewModelProviders.of(this,

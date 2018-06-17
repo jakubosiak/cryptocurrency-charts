@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 /**
@@ -12,15 +14,17 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 public class CryptoSimpleAdapter extends ListAdapter<CryptoWithFavs, CryptoViewHolder> {
 
+    private Glide glide;
 
-    protected CryptoSimpleAdapter() {
+    public CryptoSimpleAdapter(Glide glide) {
         super(CryptoAdapter.diffCallback);
+        this.glide = glide;
     }
 
     @NonNull
     @Override
     public CryptoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return CryptoViewHolder.create(parent);
+        return CryptoViewHolder.create(parent, glide);
     }
 
     @Override

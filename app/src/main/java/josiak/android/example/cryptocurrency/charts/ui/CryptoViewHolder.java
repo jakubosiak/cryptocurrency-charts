@@ -2,7 +2,6 @@ package josiak.android.example.cryptocurrency.charts.ui;
 
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -24,11 +23,12 @@ import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 public class CryptoViewHolder extends RecyclerView.ViewHolder{
     private CryptocurrencyItemBinding binding;
     private CryptoRepository repository;
-    int id;
+    private Glide glide;
 
-    public CryptoViewHolder(CryptocurrencyItemBinding binding) {
+    public CryptoViewHolder(CryptocurrencyItemBinding binding, Glide glide) {
         super(binding.getRoot());
         this.binding = binding;
+        this.glide = glide;
         repository = InjectorUtils.provideCryptoRepository(binding.getRoot().getContext());
     }
 
@@ -44,9 +44,9 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder{
         try {
             Field field = R.drawable.class.getDeclaredField(crypto.getSymbol().toLowerCase());
             int id = field.getInt(field);
-            Glide.with(binding.imgCryptoIcon).load(id).into(binding.imgCryptoIcon);
+            glide.with(binding.imgCryptoIcon).load(id).into(binding.imgCryptoIcon);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            Glide.with(binding.imgCryptoIcon).load(R.drawable.icon_question_mark).into(binding.imgCryptoIcon);
+            glide.with(binding.imgCryptoIcon).load(R.drawable.icon_question_mark).into(binding.imgCryptoIcon);
         }
 
         //setFavIcon
@@ -84,12 +84,12 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder{
         }
     }
 
-    public static CryptoViewHolder create(ViewGroup parent) {
+    public static CryptoViewHolder create(ViewGroup parent, Glide glide) {
         CryptocurrencyItemBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
                 R.layout.cryptocurrency_item,
                 parent,
                 false);
-        return new CryptoViewHolder(binding);
+        return new CryptoViewHolder(binding, glide);
     }
 }

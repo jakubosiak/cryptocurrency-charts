@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 /**
@@ -13,14 +15,17 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 
 public class CryptoAdapter extends PagedListAdapter<CryptoWithFavs, CryptoViewHolder>{
 
-    protected CryptoAdapter() {
+    private Glide glide;
+
+    public CryptoAdapter(Glide glide) {
         super(diffCallback);
+        this.glide = glide;
     }
 
     @NonNull
     @Override
     public CryptoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return CryptoViewHolder.create(parent);
+        return CryptoViewHolder.create(parent, glide);
     }
 
     @Override
