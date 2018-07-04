@@ -1,4 +1,4 @@
-package josiak.android.example.cryptocurrency.charts.dagger2;
+package josiak.android.example.cryptocurrency.charts.injectors;
 
 import dagger.Component;
 import josiak.android.example.cryptocurrency.charts.ui.CryptoAdapter;

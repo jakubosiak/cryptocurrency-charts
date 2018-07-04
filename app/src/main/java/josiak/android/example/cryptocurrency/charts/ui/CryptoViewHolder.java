@@ -1,6 +1,7 @@
 package josiak.android.example.cryptocurrency.charts.ui;
 
 import android.databinding.DataBindingUtil;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import com.bumptech.glide.Glide;
 
 import java.lang.reflect.Field;
 
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
 import josiak.android.example.cryptocurrency.charts.Utilities;
@@ -20,10 +23,11 @@ import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
  * Created by Jakub on 2018-05-23.
  */
 
-public class CryptoViewHolder extends RecyclerView.ViewHolder{
+public class CryptoViewHolder extends RecyclerView.ViewHolder {
     private CryptocurrencyItemBinding binding;
     private CryptoRepository repository;
     private Glide glide;
+    private NavController navController;
 
     public CryptoViewHolder(CryptocurrencyItemBinding binding, Glide glide) {
         super(binding.getRoot());
@@ -62,6 +66,13 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder{
                     break;
             }
         });
+
+        binding.itemCrypto.setOnClickListener(view -> {
+            navController = Navigation.findNavController(view);
+            Bundle bundle = new Bundle();
+            bundle.putString(view.getContext().getString(R.string.argument_symbol), crypto.getSymbol());
+            navController.navigate(R.id.action_global, bundle);
+        });
     }
 
     private void setFavIcon(CryptoWithFavs crypto) {
@@ -72,15 +83,15 @@ public class CryptoViewHolder extends RecyclerView.ViewHolder{
         }
     }
 
-    private void setCryptoPercentageChange(CryptoWithFavs crypto){
+    private void setCryptoPercentageChange(CryptoWithFavs crypto) {
         if (crypto.getChangePercentage() > 0.00) {
             binding.tvCryptoChange.setTextColor(binding.tvCryptoChange.getContext().
                     getResources().getColor(R.color.changePercentagePlus));
-            binding.imgArrow.setImageResource(R.drawable.arrow_up);
+            binding.imgArrow.setImageResource(R.drawable.ic_arrow_up);
         } else if (crypto.getChangePercentage() < 0.00) {
             binding.tvCryptoChange.setTextColor(binding.tvCryptoChange.getContext().
                     getResources().getColor(R.color.changePercentageMinus));
-            binding.imgArrow.setImageResource(R.drawable.arrow_down);
+            binding.imgArrow.setImageResource(R.drawable.ic_arrow_down);
         }
     }
 

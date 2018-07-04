@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 import josiak.android.example.cryptocurrency.charts.Utilities;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompareHistorical;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoDetailedResponse;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoHistoricalDataResponse;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
 import josiak.android.example.cryptocurrency.charts.data.CryptoDetailed;
+import josiak.android.example.cryptocurrency.charts.data.CryptoHistoricalData;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
-import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,22 +33,29 @@ import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackSt
 
 public class SimpleNetworkCalls {
     private CryptoCompare cryptoCompareApi;
+    private CryptoCompareHistorical cryptoCompareHistorical;
     private CryptoLocalCache cache;
+
     private static final String TO_SYMBOL = "USD";
+
     private int index = 0;
     private Context context;
     private boolean requestingInProgress = false;
+    private boolean requestingHistoricalInProgress = false;
     private static final String LOG_TAG = SimpleNetworkCalls.class.getSimpleName();
     private List<String> queryValues = new ArrayList<>();
+    private List<CryptoHistoricalData> cryptoHistoricalDataList = new ArrayList<>();
     private MutableLiveData<NetworkCallbackState> _state = new MutableLiveData<>();
     public LiveData<NetworkCallbackState> state;
     private StringBuilder symbolsList = new StringBuilder();
 
     public SimpleNetworkCalls(
             CryptoCompare cryptoCompareApi,
+            CryptoCompareHistorical cryptoCompareHistorical,
             CryptoLocalCache cache,
             Context context) {
         this.cryptoCompareApi = cryptoCompareApi;
+        this.cryptoCompareHistorical = cryptoCompareHistorical;
         this.cache = cache;
         this.context = context;
         state = _state;
@@ -62,7 +71,12 @@ public class SimpleNetworkCalls {
     }
 
     public void searchSpecifiedCoin(String searchQuery) {
-        networkCall(searchQuery);
+        networkCall(searchQuery, CryptoType.SEARCH);
+    }
+
+    public void searchHistoricalData(String symbol, String queryInterval, int queryLimit, int timePeriod) {
+        networkCall(symbol, CryptoType.NEW);
+        getCryptoHistoricalData(symbol, cache.getIdBySymbol(symbol), queryInterval, queryLimit, timePeriod);
     }
 
     public void updateFavouriteCryptos() {
@@ -91,7 +105,7 @@ public class SimpleNetworkCalls {
         }
     }
 
-    private void networkCall(String searchQuery) {
+    private void networkCall(String searchQuery, CryptoType type) {
         if (requestingInProgress) return;
         requestingInProgress = true;
         if (searchQuery != null)
@@ -103,7 +117,7 @@ public class SimpleNetworkCalls {
                         for (Map.Entry<String, HashMap<String, CryptoDetailed>> entry : hashMap.entrySet()) {
                             for (Map.Entry<String, CryptoDetailed> innerEntry : entry.getValue().entrySet()) {
                                 cache.updateDataAfterSearch(Utilities.cryptoUpdateConverter(
-                                        CryptoType.SEARCH,
+                                        type,
                                         innerEntry.getValue(),
                                         searchQuery));
                                 Log.v("added", "searchQuery");
@@ -169,5 +183,45 @@ public class SimpleNetworkCalls {
                 index = 0;
             }
         }
+    }
+
+    private void getCryptoHistoricalData(String symbol, long id, String queryInterval, int queryLimit, int timePeriod) {
+        if (requestingHistoricalInProgress) return;
+        requestingHistoricalInProgress = true;
+        if (symbol != null)
+            cryptoCompareHistorical.requestHistoricalData(queryInterval, symbol, TO_SYMBOL, queryLimit, timePeriod).enqueue(new Callback<CryptoHistoricalDataResponse>() {
+                @Override
+                public void onResponse(Call<CryptoHistoricalDataResponse> call, Response<CryptoHistoricalDataResponse> response) {
+                    if (response.isSuccessful()) {
+                        cache.deleteOldHistoricalData(symbol);
+                        if (cryptoHistoricalDataList.size() > 0)
+                            cryptoHistoricalDataList.clear();
+                        Log.v("success", response.body().toString());
+                        for (CryptoHistoricalData data : response.body().getData()) {
+                            if (data.getClose() > 0.00f) {
+                                CryptoHistoricalData cryptoHistoricalData = new CryptoHistoricalData(
+                                        id,
+                                        symbol,
+                                        data.getTime(),
+                                        Utilities.convertPrice(data.getClose()),
+                                        Utilities.convertPrice(data.getHigh()),
+                                        Utilities.convertPrice(data.getLow()),
+                                        Utilities.convertPrice(data.getOpen()));
+                                cryptoHistoricalDataList.add(cryptoHistoricalData);
+                            }
+                        }
+                        cache.insertCryptoHistoricalData(cryptoHistoricalDataList);
+                    }
+                        requestingHistoricalInProgress = false;
+                }
+
+                @Override
+                public void onFailure(Call<CryptoHistoricalDataResponse> call, Throwable t) {
+                    requestingHistoricalInProgress = false;
+                    Log.d(LOG_TAG, "failed to get data");
+                    Log.d(LOG_TAG, "Unknown error " + t.getMessage());
+                }
+            });
+        requestingHistoricalInProgress = false;
     }
 }

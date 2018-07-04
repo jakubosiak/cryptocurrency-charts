@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+        </com.github.mikephil.charting.charts.LineChart>
+
+        <josiak.android.example.cryptocurrency.charts.radio_button.RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_marginBottom="13dp"
+            android:orientation="horizontal"
+            android:weightSum="5"
+            app:checkedId="@id/rb_max">
+
+            <josiak.android.example.cryptocurrency.charts.radio_button.RadioButton
+                android:id="@+id/rb_24h"
+                style="@style/RadioButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:radioButtonTextViewValue="@string/twenty_four_hours" />
+
+            <josiak.android.example.cryptocurrency.charts.radio_button.RadioButton
+                android:id="@+id/rb_7h"
+                style="@style/RadioButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:radioButtonTextViewValue="@string/seven_days"/>
+
+            <josiak.android.example.cryptocurrency.charts.radio_button.RadioButton
+                android:id="@+id/rb_30d"
+                style="@style/RadioButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:radioButtonTextViewValue="@string/month"/>
+
+            <josiak.android.example.cryptocurrency.charts.radio_button.RadioButton
+                android:id="@+id/rb_3m"
+                style="@style/RadioButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:radioButtonTextViewValue="@string/three_months"/>
+
+            <josiak.android.example.cryptocurrency.charts.radio_button.RadioButton
+                android:id="@+id/rb_max"
+                style="@style/RadioButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:radioButtonTextViewValue="@string/max"/>
+
+        </josiak.android.example.cryptocurrency.charts.radio_button.RadioGroup>
+
+        <TextView
+            android:id="@+id/tv_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:text="Id:" />
+
+        <TextView
+            android:id="@+id/tv_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal" />
+
+        <TextView
+            android:id="@+id/tv_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal" />
+
+    </LinearLayout>
+</layout>

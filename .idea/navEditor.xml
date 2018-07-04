@@ -8,12 +8,29 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="action_global">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="favourites_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="200" />
+                            <option name="x" value="-2" />
+                            <option name="y" value="-98" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="historical_data_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="380" />
                             <option name="y" value="20" />
                           </Point>
                         </option>
@@ -25,8 +42,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="20" />
-                            <option name="y" value="20" />
+                            <option name="x" value="13" />
+                            <option name="y" value="197" />
                           </Point>
                         </option>
                       </LayoutPositions>

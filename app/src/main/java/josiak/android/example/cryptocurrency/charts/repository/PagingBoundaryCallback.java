@@ -26,7 +26,6 @@ import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoSimple;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
-import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,7 +104,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
         Log.v("onItemAtFrontLoaded", "true");
         if (initialRequest)
             requestAndSaveData();
-        Log.v("initialRequestOnFront", String.valueOf(initialRequest));
     }
 
     @Override
@@ -147,15 +145,11 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                     public void onResponse(Call<CryptoSimpleResponse> call, Response<CryptoSimpleResponse> response) {
                         Log.d(TAG_COIN_MARKET_CAP_API, "got response: " + response.toString());
                         if (response.isSuccessful()) {
-                            Log.v("data null?", response.body().getItems().toString());
                             if (cryptoSimpleList.size() > 0)
                                 cryptoSimpleList.clear();
                             HashMap<String, CryptoSimple> hashMap =
                                     Utilities.replaceSymbolsIncompatibility(response.body().getItems(), contextForResources);
-
-                            //Log.v("Simple Original:", hashMap.toString());
                             HashMap<String, CryptoSimple> sortedHashMap = Utilities.sortCryptoSimpleHashMap(hashMap);
-                            //Log.v("Simple Sorted:", sortedHashMap.toString());
                             for (Map.Entry<String, CryptoSimple> entry : sortedHashMap.entrySet()) {
                                 CryptoSimple cryptoSimple = entry.getValue();
                                 cryptoSimpleList.add(cryptoSimple);
@@ -203,10 +197,8 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
                             cryptoDetailedHashMap.put(entry.getKey(), innerEntry.getValue());
                         }
                     }
-                    //Log.v("Detailed Original", cryptoDetailedHashMap.toString());
                     HashMap<String, CryptoDetailed> sortedHashMap =
                             Utilities.sortCryptoDetailedHashMap(cryptoDetailedHashMap);
-                    //Log.v("Detailed Sorted", sortedHashMap.toString());
                     for (Map.Entry<String, CryptoDetailed> entry : sortedHashMap.entrySet()) {
                         cryptoDetailedList.add(entry.getValue());
                     }
@@ -235,11 +227,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
             cryptoFavsList.clear();
         for (int i = 0; i < cryptoSimpleList.size() && i < cryptoDetailedList.size(); i++) {
             if (!cryptoSimpleList.get(i).getSymbol().equals(cryptoDetailedList.get(i).getSymbol())) {
-                /*Log.v("Data from lists", "at position " + String.valueOf(i) +
-                        " doesn't match. CryptoSimpleSymbol vs CryptoDetailedSymbol: " +
-                        cryptoSimpleList.get(i).getName() + "(" +
-                        cryptoSimpleList.get(i).getSymbol() + ")" + " : " +
-                        cryptoDetailedList.get(i).getSymbol());*/
                 cryptoSimpleList.remove(i);
                 i--;
             } else {
@@ -251,7 +238,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
 
                 CryptoFavs cryptoFavs = new CryptoFavs(cryptoSimpleList.get(i).getId(), 0);
                 cryptoFavsList.add(cryptoFavs);
-                //Log.v("cryptoItemCompleted", "Position " + String.valueOf(i) + " " + cryptoItem.toString());
             }
         }
         if (cryptoList.size() > 0)
@@ -259,10 +245,6 @@ public class PagingBoundaryCallback extends PagedList.BoundaryCallback<CryptoWit
         if (cryptoFavsList.size() > 0)
             cache.insertCryptoFavourite(cryptoFavsList);
         Log.v(LOG_TAG, "Inserted " + String.valueOf(cryptoList.size()) + " to database");
-        /*if (updateAllCoinsPerTwoWeeks && interactiveCryptoList.size() > 0) {
-                cache.insertAllCryptosInteractive(interactiveCryptoList);
-            Log.v(LOG_TAG, "Inserted InteractiveCrypto " + String.valueOf(interactiveCryptoList.size()) + " to database");
-        }*/
         if (initialRequest && Utilities.isOnline(contextForResources)) {
             if (cache.getAmountOfCryptos() > 0)
                 cache.markOldData(timeBeforeFetchingData, CryptoType.NEW, CryptoType.OLD, CryptoType.SEARCH);

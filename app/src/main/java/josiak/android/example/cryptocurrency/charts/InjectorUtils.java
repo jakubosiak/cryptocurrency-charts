@@ -5,7 +5,7 @@ import android.content.Context;
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi;
 import josiak.android.example.cryptocurrency.charts.api.HttpClient;
-import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
+import josiak.android.example.cryptocurrency.charts.repository.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptocurrencyChartsDatabase;
 import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
 import josiak.android.example.cryptocurrency.charts.repository.SimpleNetworkCalls;
@@ -27,11 +27,19 @@ public class InjectorUtils {
 
     private static CryptoLocalCache provideCryptoLocalCache(Context context){
         CryptocurrencyChartsDatabase database = CryptocurrencyChartsDatabase.getInstance(context);
-        return new CryptoLocalCache(database.cryptoDao(), database.favsDao(), provideAppExecutors());
+        return new CryptoLocalCache(
+                database.cryptoDao(),
+                database.favsDao(),
+                database.historicalDataDao(),
+                provideAppExecutors());
     }
 
     private static SimpleNetworkCalls provideSimpleNetworkCalls(Context context){
-        return new SimpleNetworkCalls(CryptoCompareApi.create(), provideCryptoLocalCache(context), context);
+        return new SimpleNetworkCalls(
+                CryptoCompareApi.create(),
+                CryptoCompareApi.createHistoricalData(),
+                provideCryptoLocalCache(context),
+                context);
     }
 
     public static CryptoRepository provideCryptoRepository(Context context){
@@ -43,7 +51,7 @@ public class InjectorUtils {
                 context);
     }
 
-    public static CryptoViewModelFactory provideMainListViewModelFactory(Context context){
+    public static CryptoViewModelFactory provideViewModelFactory(Context context){
         return new CryptoViewModelFactory(provideCryptoRepository(context));
     }
 }

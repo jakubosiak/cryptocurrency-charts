@@ -13,4 +13,11 @@
         android:title="@string/get_all_coins_title"
         app:showAsAction="ifRoom"
         />
+
+    <item
+        android:id="@+id/scroll_to_0"
+        android:icon="@drawable/ic_arrow_up_position"
+        android:title="@string/scroll_to_first_position"
+        app:showAsAction="always"
+        />
 </menu>

@@ -1,20 +1,23 @@
 package josiak.android.example.cryptocurrency.charts.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.content.Context;
 
 import java.util.List;
+import java.util.Observer;
 
 import josiak.android.example.cryptocurrency.charts.api.CoinMarketCap.CoinMarketCapApi.CoinMarketCap;
+import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompareHistorical;
 import josiak.android.example.cryptocurrency.charts.api.CryptoCompare.CryptoCompareApi.CryptoCompare;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
+import josiak.android.example.cryptocurrency.charts.data.CryptoHistoricalData;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
-import josiak.android.example.cryptocurrency.charts.database.CryptoLocalCache;
 import josiak.android.example.cryptocurrency.charts.database.CryptoResultFromDatabase;
 
 /**
@@ -77,31 +80,39 @@ public class CryptoRepository {
         simpleNetworkCalls.searchSpecifiedCoin(cache.getCryptoSymbol(searchQuery));
     }
 
+    public void searchHistoricalData(String symbol, String queryInterval, int queryLimit, int timePeriod) {
+        simpleNetworkCalls.searchHistoricalData(symbol, queryInterval, queryLimit, timePeriod);
+    }
+
     public LiveData<List<CryptoWithFavs>> cryptosBySearchType() {
         return cache.querySearchedCoins();
     }
 
-    public LiveData<List<CryptoWithFavs>> getFavouriteCryptos(){
+    public LiveData<List<CryptoWithFavs>> getFavouriteCryptos() {
         return cache.getFavouriteCryptos();
     }
 
-    public void updateCryptoFavourite(int favourite, long id){
+    public void updateCryptoFavourite(int favourite, long id) {
         cache.updateCryptoFavourite(favourite, id);
     }
 
-    public void updateFavouriteCryptos(){
+    public void updateFavouriteCryptos() {
         simpleNetworkCalls.updateFavouriteCryptos();
     }
 
-    public void refreshFavs(){
+    public void refreshFavs() {
         simpleNetworkCalls.refreshFavs();
     }
 
-    public LiveData<NetworkCallbackState> favsState(){
+    public LiveData<NetworkCallbackState> favsState() {
         return simpleNetworkCalls.state;
     }
 
-    public void updateAllCoins(){
+    public void updateAllCoins() {
         pagingBoundaryCallback.updateAllCoins();
+    }
+
+    public LiveData<List<CryptoHistoricalData>> getCryptoHistoricalData(String symbol) {
+        return cache.getCryptoHistoricalData(symbol);
     }
 }

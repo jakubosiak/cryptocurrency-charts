@@ -8,6 +8,7 @@ import android.arch.paging.PagedList;
 import java.util.List;
 
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
+import josiak.android.example.cryptocurrency.charts.data.CryptoHistoricalData;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
 import josiak.android.example.cryptocurrency.charts.repository.CryptoRepository;
@@ -25,27 +26,36 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
         this.repository = repository;
     }
 
+    private boolean initOnce = true;
     private MutableLiveData<String> trigger = new MutableLiveData<>();
     private LiveData<CryptoResultFromDatabase> cryptoResultFromDatabaseLiveData =
             Transformations.map(trigger, trigger ->
                     repository.requestCoins()
             );
 
-    public LiveData<PagedList<CryptoWithFavs>> cryptoPagedList =
-            Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getPagedListData);
+    public LiveData<PagedList<CryptoWithFavs>> cryptoPagedList = Transformations
+            .switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getPagedListData);
 
-    public LiveData<NetworkCallbackState> fetchingData =
-            Transformations.switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getFetchingData);
+    public LiveData<NetworkCallbackState> fetchingData = Transformations
+            .switchMap(cryptoResultFromDatabaseLiveData, CryptoResultFromDatabase::getFetchingData);
 
     public void init(String init) {
         trigger.postValue(init);
+    }
+
+    public boolean isInitOnce() {
+        return initOnce;
+    }
+
+    public void setInitOnce(boolean initOnce) {
+        this.initOnce = initOnce;
     }
 
     public void refreshList() {
         repository.refresh();
     }
 
-    public void refreshFavs(){
+    public void refreshFavs() {
         repository.refreshFavs();
     }
 
@@ -57,6 +67,10 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
         repository.searchSpecifiedCoin(searchQuery);
     }
 
+    public void searchHistoricalData(String symbol, String queryInterval, int queryLimit, int timePeriod) {
+        repository.searchHistoricalData(symbol, queryInterval, queryLimit, timePeriod);
+    }
+
     public LiveData<List<CryptoWithFavs>> cryptosBySearchType() {
         return repository.cryptosBySearchType();
     }
@@ -65,15 +79,20 @@ public class CryptoViewModel extends android.arch.lifecycle.ViewModel {
         return repository.getFavouriteCryptos();
     }
 
-    public void updateFavouriteCryptos(){
+    public void updateFavouriteCryptos() {
         repository.updateFavouriteCryptos();
     }
 
-    public LiveData<NetworkCallbackState> favsState(){
+    public LiveData<NetworkCallbackState> favsState() {
         return repository.favsState();
     }
 
-    public void updateAllCoins(){
+    public void updateAllCoins() {
         repository.updateAllCoins();
     }
+
+    public LiveData<List<CryptoHistoricalData>> getCryptoHistoricalData(String symbol) {
+        return repository.getCryptoHistoricalData(symbol);
+    }
 }
+

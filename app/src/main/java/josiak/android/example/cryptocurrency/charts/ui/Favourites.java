@@ -12,17 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-
-import androidx.navigation.Navigation;
 import josiak.android.example.cryptocurrency.charts.InjectorUtils;
 import josiak.android.example.cryptocurrency.charts.R;
-import josiak.android.example.cryptocurrency.charts.Utilities;
 import josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState;
-import josiak.android.example.cryptocurrency.charts.dagger2.AdaptersComponent;
-import josiak.android.example.cryptocurrency.charts.dagger2.AdaptersScope;
-import josiak.android.example.cryptocurrency.charts.dagger2.ApplicationContextModule;
-import josiak.android.example.cryptocurrency.charts.dagger2.DaggerAdaptersComponent;
+import josiak.android.example.cryptocurrency.charts.injectors.AdaptersComponent;
+import josiak.android.example.cryptocurrency.charts.injectors.ApplicationContextModule;
+import josiak.android.example.cryptocurrency.charts.injectors.DaggerAdaptersComponent;
 import josiak.android.example.cryptocurrency.charts.databinding.FragmentFavouritesBinding;
 
 import static josiak.android.example.cryptocurrency.charts.api.NetworkCallbackState.FINISHED;
@@ -39,7 +34,7 @@ public class Favourites extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_favourites, container, false);
         CryptoViewModel cryptoViewModel = ViewModelProviders.of(this,
-                InjectorUtils.provideMainListViewModelFactory(getContext())).get(CryptoViewModel.class);
+                InjectorUtils.provideViewModelFactory(getContext())).get(CryptoViewModel.class);
 
         AdaptersComponent adaptersComponent = DaggerAdaptersComponent.builder()
                 .applicationContextModule(new ApplicationContextModule(getContext()))

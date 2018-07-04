@@ -1,7 +1,8 @@
-package josiak.android.example.cryptocurrency.charts.database;
+package josiak.android.example.cryptocurrency.charts.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -9,10 +10,14 @@ import java.util.concurrent.Future;
 import josiak.android.example.cryptocurrency.charts.AppExecutors;
 import josiak.android.example.cryptocurrency.charts.data.Crypto;
 import josiak.android.example.cryptocurrency.charts.data.CryptoFavs;
+import josiak.android.example.cryptocurrency.charts.data.CryptoHistoricalData;
 import josiak.android.example.cryptocurrency.charts.data.CryptoType;
 import josiak.android.example.cryptocurrency.charts.data.CryptoUpdate;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithFavs;
 import josiak.android.example.cryptocurrency.charts.data.CryptoWithNameAndSymbol;
+import josiak.android.example.cryptocurrency.charts.database.CryptoDao;
+import josiak.android.example.cryptocurrency.charts.database.FavsDao;
+import josiak.android.example.cryptocurrency.charts.database.HistoricalDataDao;
 
 /**
  * Created by Jakub on 2018-05-25.
@@ -22,11 +27,17 @@ public class CryptoLocalCache {
     private AppExecutors executors;
     private CryptoDao cryptoDao;
     private FavsDao favsDao;
+    private HistoricalDataDao historicalDataDao;
 
-    public CryptoLocalCache(CryptoDao cryptoDao, FavsDao favsDao, AppExecutors executors) {
+    public CryptoLocalCache(
+            CryptoDao cryptoDao,
+            FavsDao favsDao,
+            HistoricalDataDao historicalDataDao,
+            AppExecutors executors) {
         this.executors = executors;
         this.cryptoDao = cryptoDao;
         this.favsDao = favsDao;
+        this.historicalDataDao = historicalDataDao;
     }
 
     public void insertCoins(List<Crypto> cryptoList) {
@@ -137,5 +148,33 @@ public class CryptoLocalCache {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void insertCryptoHistoricalData(List<CryptoHistoricalData> historicalDataList) {
+        executors.diskIO().execute(() ->
+                historicalDataDao.insertCryptoHistoricalData(historicalDataList)
+        );
+    }
+
+    public LiveData<List<CryptoHistoricalData>> getCryptoHistoricalData(String symbol) {
+        return historicalDataDao.getCryptoHistoricalData(symbol);
+    }
+
+    public long getIdBySymbol(String symbol) {
+        Future<Long> id = executors.withCallback().submit(() ->
+                cryptoDao.getIdBySymbol(symbol)
+        );
+        try {
+            return id.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public void deleteOldHistoricalData(String symbol) {
+        executors.diskIO().execute(() ->
+                historicalDataDao.deleteOldHistoricalData(symbol)
+        );
     }
 }

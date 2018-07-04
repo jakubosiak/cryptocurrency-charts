@@ -38,7 +38,7 @@
             android:focusable="true"
             android:onClick="@{mainList::closeSearchField}"
             android:padding="12dp"
-            android:src="@drawable/ic_close"
+            app:srcCompat="@drawable/ic_close"
             android:visibility="gone" />
 
         <android.support.v4.widget.SwipeRefreshLayout

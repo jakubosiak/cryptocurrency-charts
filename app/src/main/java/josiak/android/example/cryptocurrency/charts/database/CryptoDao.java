@@ -73,4 +73,7 @@ public interface CryptoDao {
     @Query("SELECT * FROM cryptos INNER JOIN favsCrypto ON favsCrypto.id = cryptos.id" +
             " WHERE favourite = 1 ORDER BY rank ASC")
     LiveData<List<CryptoWithFavs>> getFavouriteCryptos();
+
+    @Query("SELECT id FROM cryptos WHERE symbol LIKE :symbol")
+    long getIdBySymbol(String symbol);
 }

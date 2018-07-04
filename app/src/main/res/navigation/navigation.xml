@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@+id/launcher_main_list">
+    app:startDestination="@id/launcher_main_list">
     <fragment
         android:id="@+id/launcher_main_list"
         android:name="josiak.android.example.cryptocurrency.charts.ui.CryptocurrencyMainList"
@@ -14,4 +14,14 @@
         android:name="josiak.android.example.cryptocurrency.charts.ui.Favourites"
         android:label="Favs"
         tools:layout="@layout/fragment_favourites" />
+
+    <fragment
+        android:id="@+id/historical_data_fragment"
+        android:name="josiak.android.example.cryptocurrency.charts.ui.HistoricalData"
+        android:label="@string/historical_data"
+        tools:layout="@layout/fragment_historical_data">
+    </fragment>
+    <action
+        android:id="@+id/action_global"
+        app:destination="@id/historical_data_fragment" />
 </navigation>

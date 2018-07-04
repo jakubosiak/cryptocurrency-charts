@@ -9,4 +9,15 @@
     <string name="get_all_coins_title">Get all coins</string>
     <string name="search">Search</string>
     <string name="no_internet">No internet connection</string>
+    <string name="historical_data">Historical Data</string>
+    <string name="reset">Reset</string>
+    <string name="argument_symbol">symbol</string>
+    <string name="scroll_to_first_position">Scroll to first</string>
+
+    <!-- text values for custom radio buttons -->
+    <string name="twenty_four_hours">24H</string>
+    <string name="seven_days">7D</string>
+    <string name="month">1M</string>
+    <string name="three_months">30M</string>
+    <string name="max">MAX</string>
 </resources>

@@ -1,4 +1,4 @@
-package josiak.android.example.cryptocurrency.charts.dagger2;
+package josiak.android.example.cryptocurrency.charts.injectors;
 
 import com.bumptech.glide.Glide;
 

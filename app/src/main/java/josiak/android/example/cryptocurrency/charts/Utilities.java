@@ -123,6 +123,11 @@ public class Utilities {
                 insertedTime, volume, changePercentage, marketCap, CryptoType.NEW);
     }
 
+    public static float convertPrice(float price) {
+        return price < 1.00 ?
+                Float.parseFloat(dfTo6Places.format(price)) : Float.parseFloat(dfTo2Places.format(price));
+    }
+
     public static CryptoUpdate cryptoUpdateConverter(CryptoType dataType, CryptoDetailed crypto, String searchQuery) {
         final float price;
         long updatedTime = crypto.getTime();

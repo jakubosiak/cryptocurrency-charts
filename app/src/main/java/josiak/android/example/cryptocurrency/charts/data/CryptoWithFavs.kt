@@ -17,7 +17,7 @@ data class CryptoWithFavs(
         val volume: String,
         val changePercentage: Float,
         val marketCap: String,
-        @TypeConverters(value = DataConverter::class)
+        @TypeConverters(value = [DataConverter::class])
         val dataType: CryptoType,
         val favourite: Int
 )
